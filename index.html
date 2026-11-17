@@ -2,8 +2,16 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f1f3d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
+<link rel="apple-touch-icon" href="icono-apple-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Actas MYM">
 <title>Actas de entrega de herramientas y unidad · MYM</title>
 <style>
 :root{--azul:#1d5fd1;--marino:#0f1f3d;--gris:#5b6475;--borde:#d9dee8;--fondo:#f4f6fa;--ok:#137a3e;--warn:#b26a00;--mal:#b42318}
@@ -69,6 +77,72 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .firmar{max-width:820px;margin:0 auto 16px}
 .canales{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
 @media (max-width:640px){.doc{padding:18px 12px}.doc p{text-align:left}.doc th,.doc td{font-size:10.5px;padding:2px 3px}main{padding:10px}}
+/* App: cabecera, instalación y menú */
+.logo-app{width:34px;height:34px;border-radius:8px;background:#fff;flex:none}
+.corto,.ico{display:none}
+button.instalar{font:inherit;font-size:13px;background:#fff;color:var(--marino);border:0;border-radius:16px;padding:5px 12px;cursor:pointer;font-weight:600}
+#avisoIos{display:flex;gap:10px;align-items:center;justify-content:space-between;background:#eef4ff;border-bottom:1px solid var(--borde);padding:10px 14px;font-size:13px}
+/* Celular: se ve y se usa como una aplicación */
+@media (max-width:700px){ /* (el PDF se mide a 718 px: estas reglas no lo afectan) */
+  body{font-size:15px;padding-bottom:calc(66px + env(safe-area-inset-bottom))}
+  header{position:sticky;top:0;z-index:20;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;gap:10px;flex-wrap:nowrap}
+  header .sub,.largo{display:none}
+  .corto{display:inline}
+  header h1{font-size:17px}
+  .titulos{flex:1;min-width:0}
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;gap:0;flex-wrap:nowrap;background:#fff;border-top:1px solid var(--borde);box-shadow:0 -2px 10px rgba(15,31,61,.08);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+  nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--gris);font-size:11px;padding:5px 2px;border-radius:10px}
+  nav button .ico{display:block;font-size:20px;line-height:1.2}
+  nav button.activo{background:#eef4ff;color:var(--azul);font-weight:600}
+  main{padding:10px}
+  .tarjeta{padding:14px 12px;border-radius:12px;margin-bottom:12px}
+  h2{font-size:17px}
+  label{font-size:13px}
+  input,select,textarea{font-size:16px;padding:10px 10px;border-radius:8px}
+  input[type=checkbox],input[type=radio]{width:22px!important;height:22px;flex:none}
+  .fila{grid-template-columns:1fr 1fr!important;gap:10px}
+  .fila>div[style*="span 2"],.fila>div:has(#fTec),.fila>div:has(#fResp),.fila>div:has(#sUrl){grid-column:1/-1}
+  button.b{padding:11px 16px;border-radius:8px;font-size:15px}
+  button.mini{padding:7px 10px;font-size:13px}
+  .acciones{gap:8px}
+  .acciones>button.b{flex:1 1 auto}
+  .unidades{display:grid;grid-template-columns:1fr;gap:8px}
+  .unidades label{padding:13px 14px;font-size:15px}
+  /* Ítems: cada fila es una tarjeta (marcar, descripción, cantidad; serie y observación debajo) */
+  .sec-items summary{padding:12px}
+  .sec-items thead{display:none}
+  .sec-items tbody tr{display:grid;grid-template-columns:30px 1fr 1fr 70px;grid-template-areas:"chk desc desc cant" ". serie obs obs";gap:6px 8px;padding:9px 10px;border-bottom:1px solid var(--borde);align-items:center}
+  .sec-items tbody td:nth-child(5) input,.sec-items tbody td:nth-child(6) input{font-size:14px;padding:6px 8px}
+  .sec-items tbody td{padding:0;border:0;width:auto!important}
+  .sec-items tbody td:nth-child(1){grid-area:chk}
+  .sec-items tbody td:nth-child(2){display:none}
+  .sec-items tbody td:nth-child(3){grid-area:desc;font-weight:500}
+  .sec-items tbody td:nth-child(4){grid-area:cant}
+  .sec-items tbody td:nth-child(5){grid-area:serie}
+  .sec-items tbody td:nth-child(6){grid-area:obs}
+  .sec-items tr.no td:nth-child(5),.sec-items tr.no td:nth-child(6){display:none}
+  .sec-items tr.no{grid-template-areas:"chk desc desc cant"}
+  .sec-items table input{padding:8px}
+  /* Estado de la unidad: parte arriba, estado y observación debajo */
+  .estado-v thead{display:none}
+  .estado-v tr{display:grid;grid-template-columns:120px 1fr;gap:4px 8px;padding:8px 0;border-bottom:1px solid var(--borde)}
+  .estado-v td{border:0;padding:0}
+  .estado-v td:first-child{grid-column:1/-1;font-weight:500}
+  .estado-v td select{max-width:none}
+  /* Registro y unidades como tarjetas */
+  .tabla-tarjetas thead{display:none}
+  .tabla-tarjetas tr{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding:12px 4px;border-bottom:1px solid var(--borde)}
+  .tabla-tarjetas td{border:0;padding:0;text-align:left!important}
+  .tabla-tarjetas td[data-l]::before{content:attr(data-l);display:block;font-size:11px;color:var(--gris)}
+  .tabla-tarjetas td.ancho{grid-column:1/-1}
+  .canales{grid-template-columns:1fr 1fr}
+  .lienzo{height:220px}
+  .firmar{margin-bottom:12px}
+  dialog{width:96%!important;max-width:none!important;padding:16px!important}
+  #v-doc>.acciones{gap:6px}
+  #v-doc>.acciones>button.b{flex:0 0 auto;padding:7px 11px;font-size:13px}
+  #v-doc>.acciones>#btnPdf{flex:1 1 100%;order:-1;padding:11px;font-size:15px}
+}
 @media print{
   header,nav,.noimprimir,.tarjeta{display:none!important}
   body{background:#fff}
@@ -80,17 +154,20 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 </head>
 <body>
 <header class="noimprimir">
-  <div>
-    <h1>Actas de entrega de herramientas y unidad vehicular</h1>
+  <img src="icono-192.png" alt="" class="logo-app">
+  <div class="titulos">
+    <h1><span class="largo">Actas de entrega de herramientas y unidad vehicular</span><span class="corto">Actas de entrega</span></h1>
     <div class="sub">MYM Telecomunicaciones Sixseven SAC · GA-34 · firma digital del técnico</div>
   </div>
+  <button id="btnInstalar" class="instalar oculto" title="Instalar en este equipo">📲 Instalar app</button>
   <nav id="menu">
-    <button data-v="nueva" class="activo">Nueva acta</button>
-    <button data-v="registro">Registro</button>
-    <button data-v="unidades">Unidades asignadas</button>
-    <button data-v="config">Técnicos y ajustes</button>
+    <button data-v="nueva" class="activo"><span class="ico">📝</span><span>Nueva acta</span></button>
+    <button data-v="registro"><span class="ico">📋</span><span>Registro</span></button>
+    <button data-v="unidades"><span class="ico">🚐</span><span class="largo">Unidades asignadas</span><span class="corto">Unidades</span></button>
+    <button data-v="config"><span class="ico">⚙️</span><span class="largo">Técnicos y ajustes</span><span class="corto">Ajustes</span></button>
   </nav>
 </header>
+<div id="avisoIos" class="noimprimir oculto"><span>Para instalarla: toca <b>Compartir</b> <span style="font-size:16px">⎋</span> y luego <b>"Agregar a pantalla de inicio"</b>.</span><button class="mini" id="cerrarIos">Entendido</button></div>
 <main>
 <dialog id="candado" class="noimprimir" style="max-width:460px;width:94%;border:1px solid var(--borde);border-radius:12px;padding:22px">
   <img src="logo.png" alt="" style="display:block;width:130px;margin:0 auto 8px">
@@ -178,7 +255,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
       <span style="margin-left:auto"></span>
       <button class="b sec" id="btnImportarFirma">Importar firma remota</button>
     </div>
-    <div style="overflow:auto"><table id="tRegistro"><thead><tr><th>N.º</th><th>Fecha</th><th>Técnico</th><th>Unidad</th><th class="n">Ítems</th><th>Estado</th><th>Correo</th><th></th></tr></thead><tbody></tbody></table></div>
+    <div style="overflow:auto"><table id="tRegistro" class="tabla-tarjetas"><thead><tr><th>N.º</th><th>Fecha</th><th>Técnico</th><th>Unidad</th><th class="n">Ítems</th><th>Estado</th><th>Correo</th><th></th></tr></thead><tbody></tbody></table></div>
   </div>
 </section>
 
@@ -187,7 +264,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
   <div class="tarjeta">
     <h2>Unidades vehiculares asignadas</h2>
     <p class="nota">Última acta vigente (no anulada) de cada placa.</p>
-    <div style="overflow:auto"><table id="tUnidades"><thead><tr><th>Placa</th><th>Tipo</th><th>Marca / modelo</th><th>Técnico</th><th>Desde</th><th class="n">Km</th><th>SOAT</th><th>Rev. técnica</th><th>Acta</th></tr></thead><tbody></tbody></table></div>
+    <div style="overflow:auto"><table id="tUnidades" class="tabla-tarjetas"><thead><tr><th>Placa</th><th>Tipo</th><th>Marca / modelo</th><th>Técnico</th><th>Desde</th><th class="n">Km</th><th>SOAT</th><th>Rev. técnica</th><th>Acta</th></tr></thead><tbody></tbody></table></div>
   </div>
 </section>
 
@@ -376,7 +453,7 @@ function vista(v) {
   if (v === 'registro') sincronizar();
   scrollTo(0, 0);
 }
-$('#menu').onclick = e => { if (e.target.dataset.v) vista(e.target.dataset.v); };
+$('#menu').onclick = e => { const b = e.target.closest('button'); if (b?.dataset.v) vista(b.dataset.v); };
 
 // ---------- Formulario ----------
 const filaItem = ([codigo, descripcion, cant]) => ({ codigo, descripcion, cant, sel: true, serie: '', obs: '' });
@@ -452,10 +529,10 @@ function todasLasSecciones() {
 function pintarSecciones() {
   $('#secciones').innerHTML = todasLasSecciones().map((s, si) => {
     const marcados = s.items.filter(i => i.sel).length;
-    const filas = s.items.map((it, ii) => (soloMarcados && !it.sel) ? '' : `<tr class="${it.sel ? '' : 'no'}"><td style="width:28px"><input type="checkbox" data-s="${si}" data-i="${ii}" data-k="sel"${it.sel ? ' checked' : ''} style="width:auto"></td><td style="width:62px">${esc(it.codigo)}</td><td>${it.nuevo ? `<input data-s="${si}" data-i="${ii}" data-k="descripcion" value="${esc(it.descripcion)}" placeholder="Descripción">` : esc(it.descripcion)}</td><td style="width:74px"><input type="number" min="0" data-s="${si}" data-i="${ii}" data-k="cant" value="${it.cant}" style="text-align:right"></td><td style="width:150px"><input data-s="${si}" data-i="${ii}" data-k="serie" value="${esc(it.serie)}" placeholder="Serie / código"></td><td><input data-s="${si}" data-i="${ii}" data-k="obs" value="${esc(it.obs)}" placeholder="Nuevo, usado, buen estado…"></td></tr>`).join('');
+    const filas = s.items.map((it, ii) => (soloMarcados && !it.sel) ? '' : `<tr class="${it.sel ? '' : 'no'}"><td style="width:28px"><input type="checkbox" data-s="${si}" data-i="${ii}" data-k="sel"${it.sel ? ' checked' : ''} style="width:auto"></td><td style="width:62px">${esc(it.codigo)}</td><td>${it.nuevo ? `<input data-s="${si}" data-i="${ii}" data-k="descripcion" value="${esc(it.descripcion)}" placeholder="Descripción">` : esc(it.descripcion)}</td><td style="width:74px"><input type="number" min="0" data-s="${si}" data-i="${ii}" data-k="cant" value="${it.cant}" style="text-align:right"></td><td style="width:150px"><input data-s="${si}" data-i="${ii}" data-k="serie" value="${esc(it.serie)}" placeholder="Serie"></td><td><input data-s="${si}" data-i="${ii}" data-k="obs" value="${esc(it.obs)}" placeholder="Observación"></td></tr>`).join('');
     return `<details class="sec-items" open><summary>${esc(s.titulo)}<span class="nota">${marcados} de ${s.items.length} marcados</span></summary>
       <div style="overflow:auto"><table><thead><tr><th><input type="checkbox" data-todo="${si}" style="width:auto"${marcados === s.items.length ? ' checked' : ''} title="Marcar todo"></th><th>Código</th><th>Descripción</th><th class="n">Cant.</th><th>Serie o código</th><th>Observaciones</th></tr></thead><tbody>${filas}</tbody></table></div>
-      <div style="padding:6px 8px"><button class="mini" data-otro="${si}">+ Otro ítem en esta sección</button></div></details>`;
+      <div class="acciones" style="padding:8px"><button class="mini" data-otro="${si}">+ Otro ítem en esta sección</button><button class="mini" data-todos="${si}">${marcados === s.items.length ? 'Desmarcar sección' : 'Marcar toda la sección'}</button></div></details>`;
   }).join('');
 }
 $('#secciones').addEventListener('input', e => {
@@ -467,6 +544,7 @@ $('#secciones').addEventListener('input', e => {
 $('#secciones').addEventListener('click', e => {
   const t = e.target;
   if (t.dataset.todo != null) { const s = todasLasSecciones()[t.dataset.todo]; s.items.forEach(i => i.sel = t.checked); pintarSecciones(); }
+  if (t.dataset.todos != null) { const s = todasLasSecciones()[t.dataset.todos], todos = s.items.every(i => i.sel); s.items.forEach(i => i.sel = !todos); pintarSecciones(); }
   if (t.dataset.otro != null) { e.preventDefault(); const s = todasLasSecciones()[t.dataset.otro]; s.items.push({ codigo: 'ADD-' + (s.items.length + 1), descripcion: '', cant: 1, sel: true, serie: '', obs: '', nuevo: true }); pintarSecciones(); }
 });
 $('#btnSoloMarcados').onclick = () => { soloMarcados = !soloMarcados; $('#btnSoloMarcados').textContent = soloMarcados ? 'Ver todos los ítems' : 'Ver solo lo entregado'; pintarSecciones(); };
@@ -968,7 +1046,7 @@ $('#rTec').onchange = $('#rEstado').onchange = () => pintarRegistro();
 function pintarRegistro() {
   const t = $('#rTec').value, s = $('#rEstado').value;
   const lista = E.actas.filter(a => (!t || a.tecnico === t) && (!s || a.estado === s)).sort((a, b) => b.fecha.localeCompare(a.fecha) || b.numero.localeCompare(a.numero));
-  $('#tRegistro tbody').innerHTML = lista.map(a => `<tr><td>${esc(a.numero)}</td><td>${fechaCorta(a.fecha)}</td><td>${esc(a.tecnico)}</td><td>${a.unidad ? esc(UNIDAD[a.unidad.tipo].nombre + ' · ' + a.unidad.placa) : '—'}</td><td class="n">${a.secciones.reduce((n, x) => n + x.items.length, 0) + (a.unidad?.implementos.length || 0)}</td><td><span class="chip ${a.estado}">${ESTADOS[a.estado]}</span>${a.firmaAlm ? '' : a.estado !== 'anulada' ? ' <span class="nota">falta almacén</span>' : ''}</td><td>${(c => c ? `<span class="chip ${c.cls}" title="${esc(c.det)}">${c.txt}</span>` : '')(textoCorreo(a))}${a.pendiente ? ' <span class="nota">sin subir</span>' : ''}</td><td style="white-space:nowrap"><button class="mini" data-abrir="${a.id}">${a.estado === 'pendiente' ? 'Ver / firmar' : 'Ver'}</button>${a.estado === 'firmada' ? ` <button class="mini" data-pdf="${a.id}">⬇ PDF</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="nota">Sin actas todavía.</td></tr>';
+  $('#tRegistro tbody').innerHTML = lista.map(a => `<tr><td><b>${esc(a.numero)}</b></td><td>${fechaCorta(a.fecha)}</td><td class="ancho">${esc(a.tecnico)}</td><td class="ancho">${a.unidad ? esc(UNIDAD[a.unidad.tipo].nombre + ' · ' + a.unidad.placa) : '—'}</td><td class="n" data-l="Ítems">${a.secciones.reduce((n, x) => n + x.items.length, 0) + (a.unidad?.implementos.length || 0)}</td><td><span class="chip ${a.estado}">${ESTADOS[a.estado]}</span>${a.firmaAlm ? '' : a.estado !== 'anulada' ? ' <span class="nota">falta almacén</span>' : ''}</td><td>${(c => c ? `<span class="chip ${c.cls}" title="${esc(c.det)}">${c.txt}</span>` : '')(textoCorreo(a))}${a.pendiente ? ' <span class="nota">sin subir</span>' : ''}</td><td class="ancho" style="white-space:nowrap"><button class="mini" data-abrir="${a.id}">${a.estado === 'pendiente' ? 'Ver / firmar' : 'Ver'}</button>${a.estado === 'firmada' ? ` <button class="mini" data-pdf="${a.id}">⬇ PDF</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="nota">Sin actas todavía.</td></tr>';
 }
 $('#tRegistro').onclick = e => {
   if (e.target.dataset.abrir) abrirDoc(e.target.dataset.abrir);
@@ -978,7 +1056,7 @@ function pintarUnidades() {
   const ult = {};
   for (const a of E.actas) if (a.unidad && a.estado !== 'anulada') { const p = a.unidad.placa; if (!ult[p] || a.fecha >= ult[p].fecha) ult[p] = a; }
   const hoy = hoyISO(), venc = d => d ? `<span style="color:${d < hoy ? 'var(--mal)' : 'inherit'}">${fechaCorta(d)}</span>` : '';
-  $('#tUnidades tbody').innerHTML = Object.values(ult).sort((a, b) => a.unidad.placa.localeCompare(b.unidad.placa)).map(a => { const u = a.unidad; return `<tr><td><b>${esc(u.placa)}</b></td><td>${u.tipo === 'van' ? 'Van' : 'Moto'}</td><td>${esc([u.marca, u.modelo].filter(Boolean).join(' '))}</td><td>${esc(a.tecnico)}</td><td>${fechaCorta(a.fecha)}</td><td class="n">${esc(u.km)}</td><td>${venc(u.soat)}</td><td>${venc(u.revTec)}</td><td><button class="mini" data-abrir="${a.id}">${esc(a.numero)}</button> <span class="chip ${a.estado}">${ESTADOS[a.estado]}</span></td></tr>`; }).join('') || '<tr><td colspan="9" class="nota">Ninguna unidad asignada todavía.</td></tr>';
+  $('#tUnidades tbody').innerHTML = Object.values(ult).sort((a, b) => a.unidad.placa.localeCompare(b.unidad.placa)).map(a => { const u = a.unidad; return `<tr><td><b>${esc(u.placa)}</b></td><td>${u.tipo === 'van' ? 'Van' : 'Moto'}</td><td class="ancho">${esc([u.marca, u.modelo].filter(Boolean).join(' '))}</td><td class="ancho">${esc(a.tecnico)}</td><td data-l="Desde">${fechaCorta(a.fecha)}</td><td class="n" data-l="Km">${esc(u.km)}</td><td data-l="SOAT">${venc(u.soat)}</td><td data-l="Rev. técnica">${venc(u.revTec)}</td><td class="ancho"><button class="mini" data-abrir="${a.id}">${esc(a.numero)}</button> <span class="chip ${a.estado}">${ESTADOS[a.estado]}</span></td></tr>`; }).join('') || '<tr><td colspan="9" class="nota">Ninguna unidad asignada todavía.</td></tr>';
 }
 $('#tUnidades').onclick = e => { if (e.target.dataset.abrir) abrirDoc(e.target.dataset.abrir); };
 
@@ -1192,6 +1270,21 @@ function pedirClave() {
 }
 $('#cLuego').onclick = e => { e.preventDefault(); $('#candado').close(); };
 $('#lnkDesbloquear').onclick = e => { e.preventDefault(); pedirClave(); };
+
+// ---------- App instalable ----------
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+const esApp = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+let pedidoInstalar = null;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); pedidoInstalar = e; if (!modoRemoto) $('#btnInstalar').classList.remove('oculto'); });
+addEventListener('appinstalled', () => $('#btnInstalar').classList.add('oculto'));
+$('#btnInstalar').onclick = async () => {
+  if (pedidoInstalar) { pedidoInstalar.prompt(); await pedidoInstalar.userChoice.catch(() => {}); pedidoInstalar = null; $('#btnInstalar').classList.add('oculto'); }
+  else $('#avisoIos').classList.remove('oculto');
+};
+// iPhone/iPad no tiene botón de instalar: se muestra cómo agregarla a la pantalla de inicio (una vez).
+const esIos = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+if (esIos && !esApp && !location.hash.startsWith('#f') && !localStorage.getItem('mym.actas.avisoIos')) { $('#btnInstalar').classList.remove('oculto'); }
+$('#cerrarIos').onclick = () => { $('#avisoIos').classList.add('oculto'); localStorage.setItem('mym.actas.avisoIos', '1'); $('#btnInstalar').classList.add('oculto'); };
 
 // ---------- Inicio ----------
 async function inicio() {
