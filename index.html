@@ -964,7 +964,8 @@ function textoCorreo(a) {
   const c = a.correo;
   if (c?.enviado) return { cls: 'firmada', txt: 'Enviada', det: `📧 Enviada por correo el ${fechaHora(c.enviado)} a ${[...(c.para || []), ...(c.cc || [])].join(', ')}` };
   if (c?.error) return { cls: 'observada', txt: 'Error', det: `No se pudo enviar el correo (${c.error}).` };
-  if (a.estado === 'firmada' && a.firmaAlm) return conectado() ? { cls: 'pendiente', txt: 'Enviando', det: 'Firmada por ambos: el servidor está enviando el correo…' } : { cls: 'anulada', txt: 'Sin servidor', det: 'Firmada por ambos. Conecta el servidor (Técnicos y ajustes) para guardarla y enviarla por correo.' };
+  // Sin servidor no hay envío de correo: no se muestra nada.
+  if (a.estado === 'firmada' && a.firmaAlm && conectado()) return { cls: 'pendiente', txt: 'Enviando', det: 'Firmada por ambos: el servidor está enviando el correo…' };
   return null;
 }
 function pintarCorreo(a) {
