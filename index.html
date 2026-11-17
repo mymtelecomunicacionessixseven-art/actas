@@ -178,7 +178,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
       <span style="margin-left:auto"></span>
       <button class="b sec" id="btnImportarFirma">Importar firma remota</button>
     </div>
-    <div style="overflow:auto"><table id="tRegistro"><thead><tr><th>N.º</th><th>Fecha</th><th>Técnico</th><th>Unidad</th><th class="n">Ítems</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table></div>
+    <div style="overflow:auto"><table id="tRegistro"><thead><tr><th>N.º</th><th>Fecha</th><th>Técnico</th><th>Unidad</th><th class="n">Ítems</th><th>Estado</th><th>Correo</th><th></th></tr></thead><tbody></tbody></table></div>
   </div>
 </section>
 
@@ -194,10 +194,24 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 <!-- ============ CONFIG ============ -->
 <section id="v-config" class="oculto">
   <div class="tarjeta">
-    <h2>Responsable de almacén</h2>
+    <h2>Servidor de actas: guardar todas y enviar por correo</h2>
+    <p class="nota">Con el servidor conectado, cada acta se guarda en el servidor (la ven todas las computadoras de la oficina), la firma del técnico llega sola desde su celular y, cuando firman el técnico y almacén, el acta se envía por correo al técnico con copia a <b id="srvCc">minfantes@mymfibra.com, almacen@mymfibra.com</b>.</p>
     <div class="fila">
-      <div><label>Nombre y apellido</label><input id="aNombre"></div>
-      <div><label>DNI</label><input id="aDni" inputmode="numeric" maxlength="12"></div>
+      <div style="grid-column:span 2"><label>Dirección del servidor</label><input id="sUrl" placeholder="https://actas.137-184-20-246.sslip.io"></div>
+      <div><label>Usuario</label><input id="sUsuario" autocomplete="username"></div>
+      <div><label>Clave</label><input id="sClave" type="password" autocomplete="current-password"></div>
+    </div>
+    <div class="acciones"><button class="b" id="btnConectar">Conectar</button><button class="b sec" id="btnSincronizar">Sincronizar ahora</button><button class="b mal" id="btnDesconectar">Desconectar</button><span class="nota" id="srvEstado"></span></div>
+  </div>
+  <div class="tarjeta">
+    <h2>Personal de almacén</h2>
+    <p class="nota">Quien firma las actas como responsable de almacén. Los datos se pueden cambiar aquí; marca quién sale por defecto en las actas nuevas.</p>
+    <div style="overflow:auto"><table id="tAlm"><thead><tr><th>Por defecto</th><th>Nombre y apellido</th><th>DNI</th><th>Cargo</th><th>Correo</th><th>Celular</th><th></th></tr></thead><tbody></tbody></table></div>
+    <div class="acciones" style="margin-top:10px"><button class="b sec" id="btnNuevoAlm">+ Agregar persona de almacén</button><span class="nota" id="almEstado"></span></div>
+  </div>
+  <div class="tarjeta">
+    <h2>Ajustes</h2>
+    <div class="fila">
       <div><label>Sede por defecto</label><input id="aSede"></div>
       <div><label>WhatsApp de la oficina (recibe constancias)</label><input id="aOfi" type="tel" inputmode="tel" placeholder="987 654 321"></div>
       <div><label>Vigencia del formato GA-34 desde</label><input id="aVig" type="date"></div>
@@ -247,6 +261,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
     <p class="nota" id="eMsg"></p>
     <p class="nota" id="eHist"></p>
   </div>
+  <div class="firmar noimprimir tarjeta oculto" id="panelCorreo"><div class="acciones"><span id="correoEstado"></span><span style="margin-left:auto"></span><button class="b sec" id="btnReenviar">Reenviar correo</button></div></div>
   <div id="docCont"></div>
   <div class="firmar noimprimir tarjeta" id="panelFirma">
     <h2>Firma del técnico</h2>
@@ -277,7 +292,8 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
   </div>
   <div class="firmar noimprimir tarjeta oculto" id="panelRemoto">
     <h2>Firma registrada ✓</h2>
-    <p>Ahora envíe la constancia a la oficina. Con "Enviar por WhatsApp" se abre WhatsApp con el archivo o el código listo para mandar.</p>
+    <p id="prAuto" class="oculto" style="color:var(--ok);font-weight:600"></p>
+    <p id="prManual">Ahora envíe la constancia a la oficina. Con "Enviar por WhatsApp" se abre WhatsApp con el archivo o el código listo para mandar.</p>
     <div class="acciones"><button class="b wa" id="btnWaConst">Enviar por WhatsApp</button><button class="b sec" id="btnCompConst">Compartir…</button><button class="b sec" id="btnDescConst">Descargar constancia</button><button class="b sec" id="btnCopiarConst">Copiar código</button><button class="b sec" onclick="window.print()">Guardar PDF</button></div>
     <p class="nota" id="prMsg"></p>
   </div>
@@ -342,6 +358,7 @@ function vista(v) {
   document.querySelectorAll('main>section').forEach(s => s.classList.toggle('oculto', s.id !== 'v-' + v));
   document.querySelectorAll('#menu button').forEach(b => b.classList.toggle('activo', b.dataset.v === v));
   ({ registro: pintarRegistro, unidades: pintarUnidades, config: pintarConfig }[v] || (() => {}))();
+  if (v === 'registro') sincronizar();
   scrollTo(0, 0);
 }
 $('#menu').onclick = e => { if (e.target.dataset.v) vista(e.target.dataset.v); };
@@ -464,7 +481,7 @@ $('#btnLimpiar').onclick = () => { if (confirm('¿Limpiar el formulario?')) { bo
 // Lo que se guarda en el acta: solo los ítems marcados con cantidad.
 const entregados = items => items.filter(i => i.sel && i.cant > 0 && i.descripcion.trim()).map(({ codigo, descripcion, cant, serie, obs }) => ({ codigo, descripcion: descripcion.trim(), cant, serie: serie.trim(), obs: obs.trim() }));
 
-$('#btnGuardar').onclick = () => {
+$('#btnGuardar').onclick = async () => {
   const b = borrador;
   b.tecnico = $('#fTec').value;
   if (!b.tecnico) return msg('Elige el técnico.');
@@ -485,22 +502,37 @@ $('#btnGuardar').onclick = () => {
   const secciones = b.secciones.map(s => ({ titulo: s.titulo, items: entregados(s.items) })).filter(s => s.items.length);
   if (!secciones.length && !unidad) return msg('Marca al menos un ítem o una unidad vehicular.');
   E.tecnicos[b.tecnico] = { ...(E.tecnicos[b.tecnico] || {}), dni, cargo };
-  if (b.resp && !A().nombre) { A().nombre = b.resp; A().dni = b.respDni; }
+  // Un responsable de almacén nuevo queda en la lista de personal de almacén.
+  if (b.resp && !(E.almacen || []).some(p => p.nombre === b.resp.toUpperCase())) { (E.almacen ??= []).push({ nombre: b.resp.toUpperCase(), dni: b.respDni, cargo: 'Almacén', correo: '', celular: '' }); E.almacenEditado = true; subirAlmacen(); }
   const datos = { tecnico: b.tecnico, dni, cargo, fecha: b.fecha, sede: b.sede, area: b.area, resp: b.resp, respDni: b.respDni, unidad, secciones, obs: b.obs, borrador: structuredClone({ secciones: b.secciones, unidad: b.unidad }) };
-  let a;
-  if (b.id) {
-    a = E.actas.find(x => x.id === b.id);
-    Object.assign(a, datos, { estado: 'pendiente', firma: null, firmaAlm: null, editada: new Date().toISOString() });
-  } else {
-    const anio = b.fecha.slice(0, 4);
-    E.correlativo[anio] = (E.correlativo[anio] || 0) + 1;
-    a = { id: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), numero: `AE-${anio}-${String(E.correlativo[anio]).padStart(3, '0')}`, ...datos, estado: 'pendiente', firma: null, firmaAlm: null, creada: new Date().toISOString() };
-    E.actas.push(a);
-  }
-  guardar();
-  borrador = nuevoBorrador(); pintarForm(); llenarSelects(); msg('');
-  abrirDoc(a.id);
+  $('#btnGuardar').disabled = true;
+  try {
+    let a;
+    if (b.id) {
+      a = E.actas.find(x => x.id === b.id);
+      Object.assign(a, datos, { estado: 'pendiente', firma: null, firmaAlm: null, correo: null, editada: new Date().toISOString() });
+    } else {
+      const anio = b.fecha.slice(0, 4);
+      let numero = '';
+      // Con servidor, el número lo reparte el servidor para que no se repita entre computadoras.
+      if (conectado()) {
+        try { numero = (await api('/api/numero', { method: 'POST', body: { anio, minimo: E.correlativo[anio] || 0 } })).numero; }
+        catch (e) { avisoSrv('No se pudo pedir el número al servidor (' + e.message + '); se numeró en este equipo.'); }
+      }
+      if (numero) E.correlativo[anio] = Math.max(E.correlativo[anio] || 0, +numero.split('-')[2]);
+      else { E.correlativo[anio] = (E.correlativo[anio] || 0) + 1; numero = `AE-${anio}-${String(E.correlativo[anio]).padStart(3, '0')}`; }
+      a = { id: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), numero, ...datos, estado: 'pendiente', firma: null, firmaAlm: null, tokenFirma: tokenAleatorio(), creada: new Date().toISOString() };
+      E.actas.push(a);
+    }
+    a.tokenFirma ||= tokenAleatorio();
+    a.hash = await huella(contenidoFirmable(a));
+    guardar();
+    borrador = nuevoBorrador(); pintarForm(); llenarSelects(); msg('');
+    await subir(a);
+    abrirDoc(a.id);
+  } finally { $('#btnGuardar').disabled = false; }
 };
+const tokenAleatorio = () => [...crypto.getRandomValues(new Uint8Array(12))].map(x => x.toString(16).padStart(2, '0')).join('');
 
 // ---------- Documento ----------
 function contenidoFirmable(a) {
@@ -552,10 +584,10 @@ function htmlDoc(a) {
   ${a.secciones.map(s => tablaItems(s.titulo, s.items)).join('')}
   ${a.obs ? `<p><b>Observaciones:</b> ${esc(a.obs)}</p>` : ''}
   <div class="firmas">
-    <div>${firmaTec}<div class="linea"><b>TÉCNICO</b><br>NOMBRE Y APELLIDO: ${esc(a.tecnico)}<br>DNI: ${esc(a.dni)}</div></div>
-    <div>${firmaAlm}<div class="linea"><b>JEFE DE ALMACÉN</b><br>NOMBRE Y APELLIDO: ${esc(a.resp)}<br>DNI: ${esc(a.respDni)}</div></div>
+    <div><!--FT-->${firmaTec}<!--/FT--><div class="linea"><b>TÉCNICO</b><br>NOMBRE Y APELLIDO: ${esc(a.tecnico)}<br>DNI: ${esc(a.dni)}</div></div>
+    <div><!--FA-->${firmaAlm}<!--/FA--><div class="linea"><b>JEFE DE ALMACÉN</b><br>NOMBRE Y APELLIDO: ${esc(a.resp)}<br>DNI: ${esc(a.respDni)}</div></div>
   </div>
-  ${sello}
+  <!--SELLO-->${sello}
 </div>`;
 }
 
@@ -575,6 +607,7 @@ function abrirDoc(id, acta) {
   $('#btnAnular').classList.toggle('oculto', modoRemoto || a.estado === 'anulada');
   $('#panelEnvio').classList.toggle('oculto', modoRemoto || !firmable);
   if (!modoRemoto) { pintarEnvio(a); pintarAlm(); }
+  pintarCorreo(a);
   $('#pfNombre').textContent = a.tecnico;
   $('#pfTexto').textContent = textoAceptacion(a);
   $('#pfDni').value = ''; $('#pfAcepto').checked = false; $('#pfMsg').textContent = '';
@@ -596,7 +629,7 @@ $('#btnAnular').onclick = () => {
   const motivo = prompt('Motivo de la anulación (ej. devolución de la unidad, cambio de técnico):');
   if (!motivo) return;
   Object.assign(docActual, { estado: 'anulada', anulacion: { motivo, fecha: new Date().toISOString() } });
-  guardar(); abrirDoc(docActual.id);
+  guardar(); abrirDoc(docActual.id); subir(docActual);
 };
 
 // ---------- Lienzos de firma ----------
@@ -646,9 +679,24 @@ async function registrarRespuesta(tipo) {
     if (!c) return;
     firma.comentario = c;
   }
+  // Firma remota con servidor: se manda sola a la oficina. Si falla, queda la constancia manual.
+  if (modoRemoto && a.srv && a.t) {
+    $('#btnFirmar').disabled = $('#btnObservar').disabled = true; $('#pfMsg').style.color = ''; $('#pfMsg').textContent = 'Enviando a la oficina…';
+    let r, j = {};
+    try { r = await fetch(a.srv.replace(/\/$/, '') + '/api/firma/' + a.id, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: a.t, firma }) }); j = await r.json().catch(() => ({})); } catch (e) {}
+    $('#btnFirmar').disabled = $('#btnObservar').disabled = false;
+    if (r && r.status === 409) return err(j.error || 'No se pudo registrar la firma.');
+    a.enviadaAuto = !!(r && r.ok);
+  }
   a.firma = firma; a.estado = tipo === 'firma' ? 'firmada' : 'observada';
-  if (!modoRemoto) guardar();
+  if (!modoRemoto) { guardar(); subir(a); }
   abrirDoc(a.id, a);
+  if (modoRemoto) {
+    $('#prAuto').classList.toggle('oculto', !a.enviadaAuto);
+    $('#prAuto').textContent = tipo === 'firma' ? '✓ Su firma ya llegó a la oficina. No necesita enviar nada más; cuando almacén firme, recibirá el acta por correo.' : '✓ Su observación ya llegó a la oficina.';
+    $('#prManual').classList.toggle('oculto', !!a.enviadaAuto);
+    ['#btnWaConst', '#btnCompConst', '#btnDescConst', '#btnCopiarConst'].forEach(s => $(s).classList.toggle('oculto', !!a.enviadaAuto));
+  }
 }
 $('#btnFirmar').onclick = () => registrarRespuesta('firma');
 $('#btnObservar').onclick = () => registrarRespuesta('observacion');
@@ -662,6 +710,9 @@ async function firmarAlm(img) {
   const a = docActual;
   a.firmaAlm = { img, nombre: a.resp, dni: a.respDni, fecha: new Date().toISOString(), hash: await huella(contenidoFirmable(a)) };
   guardar(); abrirDoc(a.id);
+  await subir(a);
+  // Si con esto quedaron las dos firmas, el servidor envía el correo: se consulta en unos segundos.
+  if (a.firma && conectado()) setTimeout(async () => { await sincronizar(); if (docActual && docActual.id === a.id) abrirDoc(a.id); }, 5000);
 }
 $('#almGuardada').onclick = e => {
   if (e.target.id === 'btnUsarAlm') firmarAlm(A().firma);
@@ -694,6 +745,8 @@ async function enlaceFirma(a) {
   const datos = { id, numero, tecnico, dni, cargo, fecha, sede, area, resp, respDni, unidad, secciones, obs };
   const ofi = telWa(A().ofi); if (ofi) datos.ofi = ofi;
   if (A().vig) datos.vig = A().vig;
+  // Si el acta está en el servidor, la firma del técnico se envía sola (con el token propio del acta).
+  if (a.enServidor && S().url && a.tokenFirma) { datos.srv = S().url; datos.t = a.tokenFirma; }
   const json = JSON.stringify(datos);
   return baseEnlace() + (window.CompressionStream ? '#f=' + await comprimir(json) : '#firmar=' + b64(json));
 }
@@ -788,7 +841,7 @@ $('#rTec').onchange = $('#rEstado').onchange = () => pintarRegistro();
 function pintarRegistro() {
   const t = $('#rTec').value, s = $('#rEstado').value;
   const lista = E.actas.filter(a => (!t || a.tecnico === t) && (!s || a.estado === s)).sort((a, b) => b.fecha.localeCompare(a.fecha) || b.numero.localeCompare(a.numero));
-  $('#tRegistro tbody').innerHTML = lista.map(a => `<tr><td>${esc(a.numero)}</td><td>${fechaCorta(a.fecha)}</td><td>${esc(a.tecnico)}</td><td>${a.unidad ? esc(UNIDAD[a.unidad.tipo].nombre + ' · ' + a.unidad.placa) : '—'}</td><td class="n">${a.secciones.reduce((n, x) => n + x.items.length, 0) + (a.unidad?.implementos.length || 0)}</td><td><span class="chip ${a.estado}">${ESTADOS[a.estado]}</span>${a.firmaAlm ? '' : a.estado !== 'anulada' ? ' <span class="nota">falta almacén</span>' : ''}</td><td><button class="mini" data-abrir="${a.id}">${a.estado === 'pendiente' ? 'Ver / firmar' : 'Ver'}</button></td></tr>`).join('') || '<tr><td colspan="7" class="nota">Sin actas todavía.</td></tr>';
+  $('#tRegistro tbody').innerHTML = lista.map(a => `<tr><td>${esc(a.numero)}</td><td>${fechaCorta(a.fecha)}</td><td>${esc(a.tecnico)}</td><td>${a.unidad ? esc(UNIDAD[a.unidad.tipo].nombre + ' · ' + a.unidad.placa) : '—'}</td><td class="n">${a.secciones.reduce((n, x) => n + x.items.length, 0) + (a.unidad?.implementos.length || 0)}</td><td><span class="chip ${a.estado}">${ESTADOS[a.estado]}</span>${a.firmaAlm ? '' : a.estado !== 'anulada' ? ' <span class="nota">falta almacén</span>' : ''}</td><td>${(c => c ? `<span class="chip ${c.cls}" title="${esc(c.det)}">${c.txt}</span>` : '')(textoCorreo(a))}${a.pendiente ? ' <span class="nota">sin subir</span>' : ''}</td><td><button class="mini" data-abrir="${a.id}">${a.estado === 'pendiente' ? 'Ver / firmar' : 'Ver'}</button></td></tr>`).join('') || '<tr><td colspan="8" class="nota">Sin actas todavía.</td></tr>';
 }
 $('#tRegistro').onclick = e => { if (e.target.dataset.abrir) abrirDoc(e.target.dataset.abrir); };
 function pintarUnidades() {
@@ -800,14 +853,132 @@ function pintarUnidades() {
 $('#tUnidades').onclick = e => { if (e.target.dataset.abrir) abrirDoc(e.target.dataset.abrir); };
 
 // ---------- Técnicos y ajustes ----------
-const camposA = { aNombre: 'nombre', aDni: 'dni', aSede: 'sede', aOfi: 'ofi', aVig: 'vig' };
+const camposA = { aSede: 'sede', aOfi: 'ofi', aVig: 'vig' };
 function pintarConfig() {
   for (const [id, k] of Object.entries(camposA)) $('#' + id).value = A()[k] || '';
+  pintarAlmacen(); pintarEstadoSrv();
   $('#aFirmaInfo').textContent = A().firma ? 'Hay una firma de almacén guardada en este navegador (se usa con "Firmar con mi firma guardada").' : '';
   const campo = (t, k, v, ancho) => `<input data-t="${esc(t)}" data-k="${k}" value="${esc(v || '')}"${ancho ? ` style="max-width:${ancho}px"` : ''}>`;
   $('#tTecs tbody').innerHTML = tecnicos().map(t => { const f = fichaTec(t); return `<tr><td>${esc(t)}</td><td>${campo(t, 'dni', f.dni, 110)}</td><td>${campo(t, 'cargo', f.cargo)}</td><td>${campo(t, 'celular', f.celular, 130)}</td><td>${campo(t, 'correo', f.correo)}</td><td>${esc(f.zona || '')}</td><td>${f.vehiculo ? esc(textoVeh(f.vehiculo)) : ''}</td><td>${esc(f.situacion || '')}</td></tr>`; }).join('') || '<tr><td colspan="8" class="nota">Sin técnicos: desbloquea con la clave o agrégalos abajo.</td></tr>';
 }
-Object.entries(camposA).forEach(([id, k]) => $('#' + id).onchange = e => { A()[k] = e.target.value.trim(); guardar(); if (k === 'nombre' || k === 'dni' || k === 'sede') { borrador.resp ||= A().nombre; borrador.respDni ||= A().dni; } });
+Object.entries(camposA).forEach(([id, k]) => $('#' + id).onchange = e => { A()[k] = e.target.value.trim(); guardar(); });
+
+// ---------- Personal de almacén (editable) ----------
+function pintarAlmacen() {
+  const L = E.almacen || [], campo = (i, k, v, extra = '') => `<input data-ai="${i}" data-ak="${k}" value="${esc(v || '')}"${extra}>`;
+  $('#tAlm tbody').innerHTML = L.map((p, i) => `<tr><td style="text-align:center"><input type="radio" name="almDef" data-adef="${i}" style="width:auto"${A().nombre === p.nombre ? ' checked' : ''}></td><td>${campo(i, 'nombre', p.nombre, ' style="text-transform:uppercase"')}</td><td>${campo(i, 'dni', p.dni, ' inputmode="numeric" maxlength="12" style="max-width:110px"')}</td><td>${campo(i, 'cargo', p.cargo)}</td><td>${campo(i, 'correo', p.correo, ' type="email"')}</td><td>${campo(i, 'celular', p.celular, ' style="max-width:130px"')}</td><td><button class="mini" data-aquitar="${i}">Quitar</button></td></tr>`).join('') || '<tr><td colspan="7" class="nota">Sin personal de almacén: agrégalo abajo.</td></tr>';
+}
+function cambioAlmacen() { E.almacenEditado = true; guardar(); llenarSelects(); subirAlmacen(); }
+$('#tAlm').onchange = e => {
+  const t = e.target;
+  if (t.dataset.adef != null) { const p = E.almacen[t.dataset.adef]; A().nombre = p.nombre; A().dni = p.dni; guardar(); if (!borrador.id) { borrador.resp = $('#fResp').value = p.nombre; borrador.respDni = $('#fRespDni').value = p.dni; } return; }
+  if (t.dataset.ai == null) return;
+  const p = E.almacen[t.dataset.ai], antes = p.nombre;
+  p[t.dataset.ak] = t.dataset.ak === 'nombre' ? t.value.trim().toUpperCase().replace(/\s+/g, ' ') : t.value.trim();
+  if (A().nombre === antes) { A().nombre = p.nombre; A().dni = p.dni; }
+  if (!borrador.id && $('#fResp').value === antes) { borrador.resp = $('#fResp').value = p.nombre; borrador.respDni = $('#fRespDni').value = p.dni; }
+  cambioAlmacen(); pintarAlmacen();
+};
+$('#tAlm').onclick = e => {
+  const i = e.target.dataset.aquitar; if (i == null) return;
+  if (!confirm(`¿Quitar a ${E.almacen[i].nombre} del personal de almacén? Las actas ya hechas no cambian.`)) return;
+  E.almacen.splice(+i, 1); cambioAlmacen(); pintarAlmacen();
+};
+$('#btnNuevoAlm').onclick = () => { (E.almacen ??= []).push({ nombre: '', dni: '', cargo: 'Almacén', correo: '', celular: '' }); pintarAlmacen(); document.querySelector(`#tAlm [data-ai="${E.almacen.length - 1}"]`).focus(); };
+async function subirAlmacen() {
+  if (!conectado()) return;
+  try { await api('/api/almacen', { method: 'PUT', body: { almacen: (E.almacen || []).filter(p => p.nombre) } }); $('#almEstado').textContent = 'Guardado en el servidor.'; }
+  catch (e) { $('#almEstado').textContent = 'No se pudo guardar en el servidor: ' + e.message; }
+}
+
+// ---------- Servidor de actas ----------
+const SRV_DEF = 'https://actas.137-184-20-246.sslip.io';
+const S = () => E.servidor ??= { url: SRV_DEF };
+const conectado = () => !!S().token;
+async function api(ruta, op = {}) {
+  const r = await fetch(S().url.replace(/\/$/, '') + ruta, { method: op.method || 'GET', headers: { 'Content-Type': 'application/json', ...(S().token ? { Authorization: 'Bearer ' + S().token } : {}) }, body: op.body ? JSON.stringify(op.body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401 && S().token && ruta !== '/api/login') { delete S().token; guardar(); pintarEstadoSrv(); }
+  if (!r.ok) throw new Error(j.error || 'error ' + r.status);
+  return j;
+}
+function avisoSrv(t) { $('#msgForm').style.color = 'var(--warn)'; $('#msgForm').textContent = t; }
+// Documento sin firmas, con marcas para que el servidor ponga las firmas y lo adjunte al correo.
+const CSS_PAGINA = document.querySelector('style').textContent;
+const documentoServidor = a => `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Acta ${esc(a.numero)} - ${esc(a.tecnico)}</title><style>${CSS_PAGINA}</style></head><body style="background:#fff;padding:16px">${htmlDoc({ ...a, firma: null, firmaAlm: null })}</body></html>`;
+async function subir(a) {
+  if (!conectado()) return false;
+  try {
+    const r = await api('/api/actas/' + a.id, { method: 'PUT', body: { ...a, doc: documentoServidor(a), correoTec: fichaTec(a.tecnico).correo || '', enServidor: undefined, pendiente: undefined } });
+    Object.assign(a, r, { enServidor: true }); delete a.pendiente; guardar();
+    return true;
+  } catch (e) { a.pendiente = true; guardar(); avisoSrv('El acta quedó guardada en este equipo, pero no se pudo subir al servidor (' + e.message + '). Se reintentará al sincronizar.'); return false; }
+}
+let sincronizando = false;
+async function sincronizar() {
+  if (!conectado() || sincronizando) return;
+  sincronizando = true;
+  try {
+    const r = await api('/api/actas'), enSrv = new Map(r.actas.map(a => [a.id, a]));
+    for (const s of r.actas) {
+      const l = E.actas.find(x => x.id === s.id);
+      if (!l) E.actas.push({ ...s, enServidor: true });
+      else if (!l.pendiente) Object.assign(l, s, { enServidor: true });
+      const [, anio, n] = s.numero.split('-'); E.correlativo[anio] = Math.max(E.correlativo[anio] || 0, +n);
+    }
+    // Actas hechas en este equipo antes de conectar, o que no se pudieron subir.
+    for (const l of E.actas) if (!enSrv.has(l.id) || l.pendiente) { l.tokenFirma ||= tokenAleatorio(); l.hash ||= await huella(contenidoFirmable(l)); await subir(l); }
+    // El personal de almacén del servidor lo comparten todas las computadoras.
+    if (r.almacen?.length) E.almacen = r.almacen;
+    else if (E.almacen?.length) subirAlmacen();
+    if (r.cc) $('#srvCc').textContent = r.cc.join(', ');
+    S().ultima = new Date().toISOString();
+    guardar(); llenarSelects();
+    if (vistaActual === 'registro') pintarRegistro();
+    if (vistaActual === 'unidades') pintarUnidades();
+  } catch (e) { S().error = e.message; }
+  finally { sincronizando = false; pintarEstadoSrv(); }
+}
+function pintarEstadoSrv() {
+  if (!$('#sUrl')) return;
+  $('#sUrl').value = S().url || ''; $('#sUsuario').value = S().usuario || '';
+  $('#srvEstado').style.color = conectado() ? 'var(--ok)' : 'var(--gris)';
+  $('#srvEstado').textContent = conectado() ? `Conectado${S().ultima ? ' · sincronizado ' + new Date(S().ultima).toLocaleString('es-PE') : ''}${S().error ? ' · último error: ' + S().error : ''}` : 'Sin conectar: las actas solo se guardan en este navegador.';
+  $('#btnDesconectar').classList.toggle('oculto', !conectado()); $('#btnSincronizar').classList.toggle('oculto', !conectado());
+}
+$('#btnConectar').onclick = async () => {
+  S().url = ($('#sUrl').value.trim() || SRV_DEF).replace(/\/$/, ''); S().usuario = $('#sUsuario').value.trim();
+  $('#srvEstado').style.color = ''; $('#srvEstado').textContent = 'Conectando…';
+  try {
+    const r = await api('/api/login', { method: 'POST', body: { usuario: S().usuario, clave: $('#sClave').value } });
+    S().token = r.token; delete S().error; $('#sClave').value = ''; guardar();
+    await sincronizar();
+  } catch (e) { $('#srvEstado').style.color = 'var(--mal)'; $('#srvEstado').textContent = 'No se pudo conectar: ' + (e.message === 'Failed to fetch' ? 'el servidor no responde (¿está instalado?)' : e.message); }
+};
+$('#btnSincronizar').onclick = () => sincronizar();
+$('#btnDesconectar').onclick = () => { delete S().token; guardar(); pintarEstadoSrv(); };
+
+// ---------- Estado del correo ----------
+const fechaHora = iso => iso ? new Date(iso).toLocaleString('es-PE') : '';
+function textoCorreo(a) {
+  const c = a.correo;
+  if (c?.enviado) return { cls: 'firmada', txt: 'Enviada', det: `📧 Enviada por correo el ${fechaHora(c.enviado)} a ${[...(c.para || []), ...(c.cc || [])].join(', ')}` };
+  if (c?.error) return { cls: 'observada', txt: 'Error', det: `No se pudo enviar el correo (${c.error}).` };
+  if (a.estado === 'firmada' && a.firmaAlm) return conectado() ? { cls: 'pendiente', txt: 'Enviando', det: 'Firmada por ambos: el servidor está enviando el correo…' } : { cls: 'anulada', txt: 'Sin servidor', det: 'Firmada por ambos. Conecta el servidor (Técnicos y ajustes) para guardarla y enviarla por correo.' };
+  return null;
+}
+function pintarCorreo(a) {
+  const t = !modoRemoto && textoCorreo(a);
+  $('#panelCorreo').classList.toggle('oculto', !t);
+  if (!t) return;
+  $('#correoEstado').textContent = t.det;
+  $('#btnReenviar').classList.toggle('oculto', !conectado() || !(a.correo?.enviado || a.correo?.error));
+}
+$('#btnReenviar').onclick = async () => {
+  const a = docActual; $('#correoEstado').textContent = 'Enviando…';
+  try { Object.assign(a, await api('/api/reenviar/' + a.id, { method: 'POST', body: {} })); guardar(); } catch (e) { alert('No se pudo reenviar: ' + e.message); }
+  abrirDoc(a.id);
+};
 $('#tTecs').onchange = e => { const { t, k } = e.target.dataset; if (t == null) return; E.tecnicos[t] = { ...(E.tecnicos[t] || {}), [k]: e.target.value.trim() }; guardar(); };
 $('#btnNuevoTec').onclick = () => { const t = $('#nTec').value.trim().toUpperCase().replace(/\s+/g, ' '); if (!t) return; E.tecnicos[t] = E.tecnicos[t] || { situacion: 'Activo' }; guardar(); $('#nTec').value = ''; llenarSelects(); pintarConfig(); };
 
@@ -854,7 +1025,8 @@ async function desbloquear(clave, recordar) {
     E.tecnicos[t] = { ...p, dni: f.dni || p.dni || '', cargo: f.cargo || 'Técnico instalador', situacion: f.situacion || '', zona: f.zona ?? p.zona, vehiculo: f.vehiculo ?? p.vehiculo,
       celular: p.celular || f.celular || '', correo: p.correo || f.correo || '' };
   }
-  if (x.almacen) E.almacen = x.almacen;
+  // El personal de almacén del ERP solo se usa como lista inicial: después se edita en la página.
+  if (x.almacen && !E.almacenEditado && !(E.almacen || []).length) E.almacen = x.almacen.map(p => ({ correo: '', celular: '', ...p }));
   if (x.fecha) E.tecnicosFecha = x.fecha;
   E.privadoIv = cifrado.iv;
   guardar();
@@ -900,11 +1072,20 @@ async function inicio() {
       if (a.vig) A().vig = a.vig;
       document.querySelector('header nav').classList.add('oculto');
       abrirDoc(a.id, a);
+      // Si el acta ya se firmó (o se anuló), no se vuelve a pedir la firma.
+      if (a.srv && a.t) fetch(a.srv.replace(/\/$/, '') + '/api/firma/' + a.id + '?t=' + encodeURIComponent(a.t)).then(r => r.ok ? r.json() : null).then(j => {
+        if (!j || j.estado === 'pendiente' || j.estado === 'observada') return;
+        $('#panelFirma').classList.add('oculto');
+        $('#pfNombre').closest('.tarjeta').insertAdjacentHTML('beforebegin', `<div class="firmar tarjeta noimprimir"><b>${j.estado === 'anulada' ? 'Esta acta fue anulada por la oficina.' : '✓ Esta acta ya está firmada. No necesita hacer nada más.'}</b></div>`);
+      }).catch(() => {});
       return;
     } catch (e) { alert('El enlace de firma está incompleto o dañado.'); }
   }
   llenarSelects(); pintarForm();
   revisarCifrado();
+  // Con servidor: trae las actas de todas las computadoras y las firmas que llegaron por enlace.
+  sincronizar();
+  setInterval(() => { if (!document.hidden) sincronizar(); }, 90000);
 }
 inicio();
 </script>
