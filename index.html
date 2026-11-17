@@ -118,7 +118,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
       <div><label>Fecha</label><input id="fFecha" type="date"></div>
       <div><label>Sede</label><input id="fSede"></div>
       <div><label>Área</label><input id="fArea"></div>
-      <div><label>Responsable de almacén</label><input id="fResp" list="dlAlmacen"><datalist id="dlAlmacen"></datalist></div>
+      <div><label>Responsable de almacén <a href="#" id="lnkEditarAlm">· ✎ editar datos</a></label><input id="fResp" list="dlAlmacen"><datalist id="dlAlmacen"></datalist></div>
       <div><label>DNI responsable</label><input id="fRespDni" inputmode="numeric" maxlength="12"></div>
     </div>
   </div>
@@ -239,7 +239,8 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 <section id="v-doc" class="oculto">
   <div class="acciones noimprimir" style="max-width:820px;margin:0 auto 12px">
     <button class="b sec" id="btnVolver">← Volver</button>
-    <button class="b sec" id="btnImprimir">Imprimir / PDF</button>
+    <button class="b" id="btnPdf">⬇ Descargar PDF</button>
+    <button class="b sec" id="btnImprimir">Imprimir</button>
     <button class="b sec" id="btnEditar">Editar</button>
     <button class="b sec" id="btnDuplicar">Usar como base</button>
     <button class="b mal" id="btnAnular">Anular</button>
@@ -294,10 +295,24 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
     <h2>Firma registrada ✓</h2>
     <p id="prAuto" class="oculto" style="color:var(--ok);font-weight:600"></p>
     <p id="prManual">Ahora envíe la constancia a la oficina. Con "Enviar por WhatsApp" se abre WhatsApp con el archivo o el código listo para mandar.</p>
-    <div class="acciones"><button class="b wa" id="btnWaConst">Enviar por WhatsApp</button><button class="b sec" id="btnCompConst">Compartir…</button><button class="b sec" id="btnDescConst">Descargar constancia</button><button class="b sec" id="btnCopiarConst">Copiar código</button><button class="b sec" onclick="window.print()">Guardar PDF</button></div>
+    <div class="acciones"><button class="b wa" id="btnWaConst">Enviar por WhatsApp</button><button class="b sec" id="btnCompConst">Compartir…</button><button class="b sec" id="btnDescConst">Descargar constancia</button><button class="b sec" id="btnCopiarConst">Copiar código</button><button class="b sec" id="btnPdfRemoto">⬇ Descargar PDF</button></div>
     <p class="nota" id="prMsg"></p>
   </div>
 </section>
+
+<dialog id="dlgAlm" style="max-width:520px;width:95%;border:1px solid var(--borde);border-radius:10px">
+  <h2>Datos del responsable de almacén</h2>
+  <p class="nota">Los cambios quedan guardados en el personal de almacén y se usan en las actas nuevas. Las actas ya firmadas no cambian.</p>
+  <div class="fila" style="grid-template-columns:1fr 1fr">
+    <div style="grid-column:span 2"><label>Nombre y apellido</label><input id="daNombre" style="text-transform:uppercase"></div>
+    <div><label>DNI</label><input id="daDni" inputmode="numeric" maxlength="12"></div>
+    <div><label>Cargo</label><input id="daCargo"></div>
+    <div><label>Correo</label><input id="daCorreo" type="email"></div>
+    <div><label>Celular</label><input id="daCel" type="tel" inputmode="tel"></div>
+  </div>
+  <label style="display:flex;gap:6px;align-items:center;font-size:13px;color:#1b2333"><input type="checkbox" id="daDef" style="width:auto"> Usar por defecto en las actas nuevas</label>
+  <div class="acciones" style="margin-top:12px"><button class="b" id="daOk">Guardar</button><button class="b sec" onclick="dlgAlm.close()">Cancelar</button><span id="daMsg" class="nota" style="color:var(--mal)"></span></div>
+</dialog>
 
 <dialog id="dlgImport" style="max-width:560px;width:95%;border:1px solid var(--borde);border-radius:10px">
   <h2>Importar firma remota</h2>
@@ -475,6 +490,28 @@ $('#fTec').onchange = () => {
   $('#notaVeh').textContent = !v ? '' : (v.tipo === 'otro' ? `Vehículo en el ERP: ${textoVeh(v)} (no es van ni moto; elige la unidad a mano si corresponde).` : `Unidad asignada en el ERP: ${textoVeh(v)}. Se completó abajo; revísala.`);
 };
 $('#fResp').onchange = () => { const p = (E.almacen || []).find(x => x.nombre === $('#fResp').value.trim().toUpperCase()); if (p) { $('#fResp').value = p.nombre; $('#fRespDni').value = p.dni; } };
+// Editar los datos de la almacenera desde el acta (se guardan en Personal de almacén).
+let almEditando = -1;
+$('#lnkEditarAlm').onclick = e => {
+  e.preventDefault();
+  const nombre = $('#fResp').value.trim().toUpperCase();
+  almEditando = (E.almacen || []).findIndex(p => p.nombre === nombre);
+  const p = E.almacen?.[almEditando] || { nombre, dni: $('#fRespDni').value.trim(), cargo: 'Almacén', correo: '', celular: '' };
+  $('#daNombre').value = p.nombre; $('#daDni').value = p.dni || ''; $('#daCargo').value = p.cargo || ''; $('#daCorreo').value = p.correo || ''; $('#daCel').value = p.celular || '';
+  $('#daDef').checked = !A().nombre || A().nombre === p.nombre; $('#daMsg').textContent = '';
+  dlgAlm.showModal();
+};
+$('#daOk').onclick = () => {
+  const p = { nombre: $('#daNombre').value.trim().toUpperCase().replace(/\s+/g, ' '), dni: $('#daDni').value.trim(), cargo: $('#daCargo').value.trim(), correo: $('#daCorreo').value.trim(), celular: $('#daCel').value.trim() };
+  if (!p.nombre) return $('#daMsg').textContent = 'Escribe el nombre.';
+  if (!/^\d{8,12}$/.test(p.dni)) return $('#daMsg').textContent = 'El DNI debe tener de 8 a 12 dígitos.';
+  E.almacen ??= [];
+  const antes = E.almacen[almEditando]?.nombre;
+  if (almEditando >= 0) E.almacen[almEditando] = p; else E.almacen.push(p);
+  if ($('#daDef').checked || A().nombre === antes) { A().nombre = p.nombre; A().dni = p.dni; }
+  $('#fResp').value = p.nombre; $('#fRespDni').value = p.dni; borrador.resp = p.nombre; borrador.respDni = p.dni;
+  cambioAlmacen(); dlgAlm.close();
+};
 function msg(t) { $('#msgForm').textContent = t; $('#msgForm').style.color = t ? 'var(--mal)' : ''; }
 $('#btnLimpiar').onclick = () => { if (confirm('¿Limpiar el formulario?')) { borrador = nuevoBorrador(); pintarForm(); msg(''); } };
 
@@ -606,6 +643,9 @@ function abrirDoc(id, acta) {
   $('#btnEditar').classList.toggle('oculto', modoRemoto || a.estado === 'firmada' || a.estado === 'anulada');
   $('#btnAnular').classList.toggle('oculto', modoRemoto || a.estado === 'anulada');
   $('#panelEnvio').classList.toggle('oculto', modoRemoto || !firmable);
+  // El PDF se descarga cuando el técnico ya firmó (en la oficina, aunque falte almacén, sale con su espacio en blanco).
+  $('#btnPdf').classList.toggle('oculto', a.estado !== 'firmada');
+  $('#btnPdf').textContent = a.firmaAlm ? '⬇ Descargar PDF' : '⬇ Descargar PDF (falta firma de almacén)';
   if (!modoRemoto) { pintarEnvio(a); pintarAlm(); }
   pintarCorreo(a);
   $('#pfNombre').textContent = a.tecnico;
@@ -616,6 +656,93 @@ function abrirDoc(id, acta) {
 }
 $('#btnVolver').onclick = () => vista('registro');
 $('#btnImprimir').onclick = () => print();
+
+// ---------- PDF del acta (sin librerías: el documento se dibuja como imagen y se arma un PDF A4) ----------
+let logoDataUrl = '';
+async function logoEmbebido() {
+  if (logoDataUrl) return logoDataUrl;
+  try { const b = await (await fetch('logo.png')).blob(); logoDataUrl = await new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(b); }); } catch (e) {}
+  return logoDataUrl;
+}
+const A4 = { w: 794, h: 1123, margen: 38 };   // px a 96 ppp (210 × 297 mm)
+async function dibujarActa(a) {
+  const ancho = A4.w - 2 * A4.margen, k = 2;
+  const logo = await logoEmbebido(), css = document.querySelector('style').textContent;
+  // Se mide dentro de un marco del mismo ancho que la página del PDF, para que en un celular
+  // (donde la página usa estilos de pantalla angosta) el acta se mida igual que como se dibuja.
+  const marco = document.createElement('iframe');
+  marco.style.cssText = `position:fixed;left:-20000px;top:0;width:${ancho}px;height:200px;border:0`;
+  document.body.appendChild(marco);
+  const md = marco.contentDocument;
+  md.open(); md.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>${css}</style></head><body style="margin:0;background:#fff">${htmlDoc(a).replace(/src="logo\.png"/g, `src="${logo}"`)}</body></html>`); md.close();
+  const doc = md.body.firstElementChild, caja = marco;
+  doc.style.cssText = 'max-width:none;width:100%;margin:0;padding:0;border:none';
+  const espera = (p, ms) => Promise.race([p, new Promise(r => setTimeout(r, ms))]);
+  await espera(Promise.all([...md.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))), 4000);
+  const alto = Math.ceil(doc.getBoundingClientRect().height), y0 = doc.getBoundingClientRect().top;
+  // Cortes de página solo entre filas, párrafos o bloques (nunca a mitad de una fila).
+  const cortes = [...new Set([...doc.querySelectorAll('tbody tr, p, h4, .firmas, .sello, table, :scope > div')].map(el => Math.round(el.getBoundingClientRect().bottom - y0)))].sort((x, y) => x - y);
+  const util = A4.h - 2 * A4.margen, paginas = [];
+  let desde = 0;
+  while (desde < alto - 1) {
+    let hasta = Math.min(alto, desde + util);
+    if (hasta < alto) { const c = cortes.filter(y => y > desde + 40 && y <= hasta).pop(); if (c) hasta = c; }
+    paginas.push([desde, hasta]); desde = hasta;
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${ancho}" height="${alto}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:${ancho}px;background:#fff"><style>${css.replace(/</g, '\\3c ')}</style>${new XMLSerializer().serializeToString(doc)}</div></foreignObject></svg>`;
+  caja.remove();
+  const img = new Image();
+  await new Promise((ok, mal) => { img.onload = ok; img.onerror = () => mal(new Error('no se pudo dibujar')); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); setTimeout(() => mal(new Error('tiempo agotado')), 15000); });
+  return paginas.map(([d, h]) => {
+    const c = document.createElement('canvas'); c.width = A4.w * k; c.height = A4.h * k;
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+    x.drawImage(img, 0, d, ancho, h - d, A4.margen * k, A4.margen * k, ancho * k, (h - d) * k);
+    x.fillStyle = '#666'; x.font = `${10 * k}px Arial`; x.textAlign = 'right';
+    x.fillText(`${a.numero} · página ${paginas.findIndex(p => p[0] === d) + 1} de ${paginas.length}`, (A4.w - A4.margen) * k, (A4.h - 16) * k);
+    return c.toDataURL('image/jpeg', 0.9);
+  });
+}
+// PDF mínimo: una imagen JPEG por página A4 (595 × 842 puntos).
+function armarPdf(jpegs, titulo) {
+  const enc = new TextEncoder(), partes = [], offs = [];
+  let largo = 0;
+  const poner = x => { const b = typeof x === 'string' ? enc.encode(x) : x; partes.push(b); largo += b.length; };
+  const obj = (n, cuerpo, flujo) => { offs[n] = largo; poner(`${n} 0 obj\n${cuerpo}\n`); if (flujo) { poner('stream\n'); poner(flujo); poner('\nendstream\n'); } poner('endobj\n'); };
+  const n = jpegs.length, kids = jpegs.map((_, i) => `${3 + i * 3} 0 R`).join(' ');
+  poner('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+  obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2, `<< /Type /Pages /Kids [${kids}] /Count ${n} >>`);
+  jpegs.forEach((u, i) => {
+    const datos = Uint8Array.from(atob(u.split(',')[1]), c => c.charCodeAt(0)), p = 3 + i * 3;
+    const c = enc.encode('q 595.28 0 0 841.89 0 0 cm /Im0 Do Q');
+    obj(p, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 ${p + 1} 0 R >> >> /Contents ${p + 2} 0 R >>`);
+    obj(p + 1, `<< /Type /XObject /Subtype /Image /Width ${A4.w * 2} /Height ${A4.h * 2} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${datos.length} >>`, datos);
+    obj(p + 2, `<< /Length ${c.length} >>`, c);
+  });
+  const info = 3 + n * 3;
+  const tit = titulo.replace(/[()\\]/g, '').replace(/[^\x20-\x7E]/g, c => ({ á: 'a', é: 'e', í: 'i', ó: 'o', ú: 'u', ñ: 'n', Á: 'A', É: 'E', Í: 'I', Ó: 'O', Ú: 'U', Ñ: 'N' }[c] || ''));
+  obj(info, `<< /Title (${tit}) /Producer (MYM Actas) >>`);
+  const xref = largo;
+  poner(`xref\n0 ${info + 1}\n0000000000 65535 f \n${offs.slice(1).map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('')}`);
+  poner(`trailer\n<< /Size ${info + 1} /Root 1 0 R /Info ${info} 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  return new Blob(partes, { type: 'application/pdf' });
+}
+async function descargarPdf(a, boton) {
+  const txt = boton.textContent; boton.disabled = true; boton.textContent = 'Generando PDF…';
+  try {
+    const pdf = armarPdf(await dibujarActa(a), `Acta de entrega ${a.numero} - ${a.tecnico}`);
+    const nombre = `Acta_${a.numero}_${a.tecnico.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ0-9]+/g, '_').slice(0, 40)}.pdf`;
+    const archivo = new File([pdf], nombre, { type: 'application/pdf' });
+    const el = document.createElement('a'); el.href = URL.createObjectURL(archivo); el.download = nombre; document.body.appendChild(el); el.click(); el.remove();
+    setTimeout(() => URL.revokeObjectURL(el.href), 5000);
+  } catch (e) {
+    // Navegadores que no permiten dibujar el documento (p. ej. algunos iPhone): se usa Imprimir → Guardar como PDF.
+    alert('Este navegador no pudo generar el PDF directamente. Se abrirá Imprimir: elija "Guardar como PDF".');
+    print();
+  } finally { boton.disabled = false; boton.textContent = txt; }
+}
+$('#btnPdf').onclick = () => descargarPdf(docActual, $('#btnPdf'));
+$('#btnPdfRemoto').onclick = () => descargarPdf(docActual, $('#btnPdfRemoto'));
 function aBorrador(a, conId) {
   const base = a.borrador ? structuredClone(a.borrador) : { secciones: seccionesBase(), unidad: a.unidad ? { ...nuevaUnidad(a.unidad.tipo), ...structuredClone(a.unidad), implementos: nuevaUnidad(a.unidad.tipo).implementos } : null };
   return { id: conId ? a.id : null, tecnico: conId ? a.tecnico : '', dni: conId ? a.dni : undefined, cargo: conId ? a.cargo : undefined, fecha: conId ? a.fecha : hoyISO(), sede: a.sede, area: a.area, resp: a.resp, respDni: a.respDni, unidad: base.unidad, secciones: base.secciones, obs: conId ? a.obs : '' };
@@ -841,9 +968,12 @@ $('#rTec').onchange = $('#rEstado').onchange = () => pintarRegistro();
 function pintarRegistro() {
   const t = $('#rTec').value, s = $('#rEstado').value;
   const lista = E.actas.filter(a => (!t || a.tecnico === t) && (!s || a.estado === s)).sort((a, b) => b.fecha.localeCompare(a.fecha) || b.numero.localeCompare(a.numero));
-  $('#tRegistro tbody').innerHTML = lista.map(a => `<tr><td>${esc(a.numero)}</td><td>${fechaCorta(a.fecha)}</td><td>${esc(a.tecnico)}</td><td>${a.unidad ? esc(UNIDAD[a.unidad.tipo].nombre + ' · ' + a.unidad.placa) : '—'}</td><td class="n">${a.secciones.reduce((n, x) => n + x.items.length, 0) + (a.unidad?.implementos.length || 0)}</td><td><span class="chip ${a.estado}">${ESTADOS[a.estado]}</span>${a.firmaAlm ? '' : a.estado !== 'anulada' ? ' <span class="nota">falta almacén</span>' : ''}</td><td>${(c => c ? `<span class="chip ${c.cls}" title="${esc(c.det)}">${c.txt}</span>` : '')(textoCorreo(a))}${a.pendiente ? ' <span class="nota">sin subir</span>' : ''}</td><td><button class="mini" data-abrir="${a.id}">${a.estado === 'pendiente' ? 'Ver / firmar' : 'Ver'}</button></td></tr>`).join('') || '<tr><td colspan="8" class="nota">Sin actas todavía.</td></tr>';
+  $('#tRegistro tbody').innerHTML = lista.map(a => `<tr><td>${esc(a.numero)}</td><td>${fechaCorta(a.fecha)}</td><td>${esc(a.tecnico)}</td><td>${a.unidad ? esc(UNIDAD[a.unidad.tipo].nombre + ' · ' + a.unidad.placa) : '—'}</td><td class="n">${a.secciones.reduce((n, x) => n + x.items.length, 0) + (a.unidad?.implementos.length || 0)}</td><td><span class="chip ${a.estado}">${ESTADOS[a.estado]}</span>${a.firmaAlm ? '' : a.estado !== 'anulada' ? ' <span class="nota">falta almacén</span>' : ''}</td><td>${(c => c ? `<span class="chip ${c.cls}" title="${esc(c.det)}">${c.txt}</span>` : '')(textoCorreo(a))}${a.pendiente ? ' <span class="nota">sin subir</span>' : ''}</td><td style="white-space:nowrap"><button class="mini" data-abrir="${a.id}">${a.estado === 'pendiente' ? 'Ver / firmar' : 'Ver'}</button>${a.estado === 'firmada' ? ` <button class="mini" data-pdf="${a.id}">⬇ PDF</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="nota">Sin actas todavía.</td></tr>';
 }
-$('#tRegistro').onclick = e => { if (e.target.dataset.abrir) abrirDoc(e.target.dataset.abrir); };
+$('#tRegistro').onclick = e => {
+  if (e.target.dataset.abrir) abrirDoc(e.target.dataset.abrir);
+  if (e.target.dataset.pdf) descargarPdf(E.actas.find(a => a.id === e.target.dataset.pdf), e.target);
+};
 function pintarUnidades() {
   const ult = {};
   for (const a of E.actas) if (a.unidad && a.estado !== 'anulada') { const p = a.unidad.placa; if (!ult[p] || a.fecha >= ult[p].fecha) ult[p] = a; }
