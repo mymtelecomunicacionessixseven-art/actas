@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Actas de entrega de herramientas y unidad · MYM</title>
+<style>
+:root{--azul:#1d5fd1;--marino:#0f1f3d;--gris:#5b6475;--borde:#d9dee8;--fondo:#f4f6fa;--ok:#137a3e;--warn:#b26a00;--mal:#b42318}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.45 system-ui,Segoe UI,Arial,sans-serif;background:var(--fondo);color:#1b2333}
+header{background:var(--marino);color:#fff;padding:10px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;font-weight:600}
+header .sub{opacity:.75;font-size:12px}
+nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav button{background:transparent;color:#cfd8ea;border:1px solid transparent;padding:6px 12px;border-radius:6px;cursor:pointer;font:inherit}
+nav button.activo{background:#fff;color:var(--marino)}
+main{max-width:1180px;margin:0 auto;padding:18px}
+.tarjeta{background:#fff;border:1px solid var(--borde);border-radius:10px;padding:16px;margin-bottom:16px}
+h2{font-size:16px;margin:0 0 12px}
+h3{font-size:14px;margin:14px 0 8px}
+label{display:block;font-size:12px;color:var(--gris);margin-bottom:3px}
+input,select,textarea{font:inherit;padding:6px 8px;border:1px solid var(--borde);border-radius:6px;width:100%;background:#fff}
+.fila{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-bottom:10px}
+button.b{font:inherit;padding:7px 14px;border-radius:6px;border:1px solid var(--azul);background:var(--azul);color:#fff;cursor:pointer}
+button.b.sec{background:#fff;color:var(--azul)}
+button.b.mal{background:#fff;color:var(--mal);border-color:var(--mal)}
+button.b.wa{background:#1f9d55;border-color:#1f9d55}
+button.b:disabled{opacity:.5;cursor:default}
+button.mini{font:inherit;font-size:12px;padding:3px 8px;border-radius:5px;border:1px solid var(--borde);background:#fff;cursor:pointer}
+table{width:100%;border-collapse:collapse}
+th,td{padding:6px 8px;border-bottom:1px solid var(--borde);text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--gris);font-weight:600;background:#fafbfd}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.chip{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600}
+.chip.pendiente{background:#fff4e0;color:var(--warn)}
+.chip.firmada{background:#e3f5ea;color:var(--ok)}
+.chip.observada{background:#fde8e6;color:var(--mal)}
+.chip.anulada{background:#eceef2;color:var(--gris)}
+.acciones{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.nota{font-size:12px;color:var(--gris)}
+.oculto{display:none!important}
+.unidades{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.unidades label{display:flex;gap:8px;align-items:center;border:1px solid var(--borde);border-radius:8px;padding:10px 14px;cursor:pointer;color:#1b2333;font-size:14px;margin:0}
+.unidades label:has(input:checked){border-color:var(--azul);background:#eef4ff;font-weight:600}
+.unidades input{width:auto}
+.sec-items{border:1px solid var(--borde);border-radius:8px;margin-bottom:12px;overflow:hidden}
+.sec-items summary{padding:9px 12px;background:#fafbfd;cursor:pointer;font-weight:600;display:flex;gap:10px;align-items:center}
+.sec-items summary .nota{font-weight:400;margin-left:auto}
+.sec-items table input{padding:4px 6px}
+.sec-items td{padding:4px 8px;vertical-align:middle}
+.sec-items tr.no td{opacity:.55}
+.sec-items tr.no td:first-child{opacity:1}
+.estado-v td select{max-width:130px}
+/* Documento */
+.doc{background:#fff;max-width:820px;margin:0 auto 16px;padding:34px 46px;border:1px solid var(--borde);font:12.5px/1.45 Arial,Helvetica,sans-serif;color:#000}
+.doc p{text-align:justify;margin:8px 0}
+.doc table{margin:6px 0 10px}
+.doc th,.doc td{border:1px solid #000;font-size:11.5px;padding:3px 6px;background:#fff;color:#000}
+.doc th{font-weight:bold;text-align:center}
+.doc .cab td{vertical-align:middle}
+.doc .tit{background:#1f3864!important;color:#fff!important;text-align:center;font-weight:bold}
+.doc .firmas{display:flex;justify-content:space-between;gap:40px;margin-top:26px;align-items:flex-end;page-break-inside:avoid}
+.doc .firmas>div{flex:1;text-align:center}
+.doc .firmas img{max-height:100px;max-width:100%}
+.doc .linea{border-top:1px solid #000;margin-top:4px;padding-top:3px;font-size:11.5px}
+.doc .sello{font:10.5px/1.4 Consolas,monospace;color:#333;border:1px dashed #888;padding:8px;margin-top:18px;word-break:break-all}
+.lienzo{border:2px dashed var(--azul);border-radius:8px;background:#fff;touch-action:none;width:100%;height:200px;display:block}
+.firmar{max-width:820px;margin:0 auto 16px}
+.canales{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+@media (max-width:640px){.doc{padding:18px 12px}.doc p{text-align:left}.doc th,.doc td{font-size:10.5px;padding:2px 3px}main{padding:10px}}
+@media print{
+  header,nav,.noimprimir,.tarjeta{display:none!important}
+  body{background:#fff}
+  main{padding:0;max-width:none}
+  .doc{border:none;padding:0 6px;margin:0;max-width:none}
+  .doc .tit{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<header class="noimprimir">
+  <div>
+    <h1>Actas de entrega de herramientas y unidad vehicular</h1>
+    <div class="sub">MYM Telecomunicaciones Sixseven SAC · GA-34 · firma digital del técnico</div>
+  </div>
+  <nav id="menu">
+    <button data-v="nueva" class="activo">Nueva acta</button>
+    <button data-v="registro">Registro</button>
+    <button data-v="unidades">Unidades asignadas</button>
+    <button data-v="config">Técnicos y ajustes</button>
+  </nav>
+</header>
+<main>
+<dialog id="candado" class="noimprimir" style="max-width:460px;width:94%;border:1px solid var(--borde);border-radius:12px;padding:22px">
+  <img src="logo.png" alt="" style="display:block;width:130px;margin:0 auto 8px">
+  <h2>Datos de técnicos protegidos</h2>
+  <p class="nota">Los datos del personal (DNI, celular, correo, unidad) están cifrados. Ingresa la clave (la misma del reporte de descuentos) para cargarlos en este navegador.</p>
+  <form id="fCandado" class="acciones" autocomplete="off">
+    <input type="password" id="cClave" placeholder="Clave" style="max-width:260px" required>
+    <label style="display:flex;gap:6px;align-items:center;margin:0;font-size:13px"><input type="checkbox" id="cRecordar" style="width:auto" checked> Recordar en este navegador</label>
+    <button class="b">Desbloquear</button>
+    <span id="cMsg" class="nota" style="color:var(--mal)"></span>
+  </form>
+  <p class="nota" style="margin-top:12px"><a href="#" id="cLuego">Seguir sin técnicos</a></p>
+</dialog>
+
+<!-- ============ NUEVA ============ -->
+<section id="v-nueva">
+  <div class="tarjeta">
+    <h2 id="tituloForm">Nueva acta de entrega</h2>
+    <div class="fila">
+      <div style="grid-column:span 2"><label>Técnico <a href="#" id="lnkDesbloquear" class="oculto">· desbloquear técnicos</a></label><select id="fTec"></select></div>
+      <div><label>DNI</label><input id="fDni" inputmode="numeric" maxlength="12"></div>
+      <div><label>Cargo</label><input id="fCargo"></div>
+    </div>
+    <div class="fila">
+      <div><label>Fecha</label><input id="fFecha" type="date"></div>
+      <div><label>Sede</label><input id="fSede"></div>
+      <div><label>Área</label><input id="fArea"></div>
+      <div><label>Responsable de almacén</label><input id="fResp" list="dlAlmacen"><datalist id="dlAlmacen"></datalist></div>
+      <div><label>DNI responsable</label><input id="fRespDni" inputmode="numeric" maxlength="12"></div>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Unidad vehicular</h2>
+    <p class="nota" id="notaVeh" style="margin-top:-6px"></p>
+    <div class="unidades" id="fUnidad">
+      <label><input type="radio" name="unidad" value=""> Sin unidad</label>
+      <label><input type="radio" name="unidad" value="van"> 🚐 Van Changan New Van</label>
+      <label><input type="radio" name="unidad" value="moto"> 🏍️ Motocicleta</label>
+    </div>
+    <div id="cajaUnidad" class="oculto">
+      <datalist id="dlPlacas"></datalist>
+      <div class="fila">
+        <div><label>Placa</label><input id="uPlaca" list="dlPlacas" placeholder="ABC-123" style="text-transform:uppercase"></div>
+        <div><label>Marca</label><input id="uMarca"></div>
+        <div><label>Modelo</label><input id="uModelo"></div>
+        <div><label>Año</label><input id="uAnio" inputmode="numeric" maxlength="4"></div>
+        <div><label>Color</label><input id="uColor"></div>
+      </div>
+      <div class="fila">
+        <div><label>Kilometraje de entrega</label><input id="uKm" inputmode="numeric"></div>
+        <div><label>Combustible</label><select id="uComb"><option>Reserva</option><option>1/4</option><option>1/2</option><option>3/4</option><option>Lleno</option></select></div>
+        <div><label>SOAT vence</label><input id="uSoat" type="date"></div>
+        <div><label>Revisión técnica vence</label><input id="uRevTec" type="date"></div>
+        <div><label>Licencia del técnico (n.º y categoría)</label><input id="uLic" placeholder="Q12345678 · A-I"></div>
+      </div>
+      <label style="display:flex;gap:6px;align-items:center;font-size:13px;color:#1b2333;margin-bottom:10px"><input type="checkbox" id="uTarjeta" style="width:auto"> Se entrega tarjeta de propiedad (original o copia)</label>
+      <h3>Estado de la unidad</h3>
+      <table class="estado-v" id="tEstadoV"><thead><tr><th>Parte</th><th>Estado</th><th>Observación</th></tr></thead><tbody></tbody></table>
+      <div style="margin-top:8px"><label>Daños o detalles visibles (rayones, golpes, etc.)</label><textarea id="uObs" rows="2"></textarea></div>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <div class="acciones" style="margin-bottom:10px"><h2 style="margin:0">Herramientas, equipos e implementos</h2><span style="margin-left:auto"></span>
+      <button class="mini" id="btnSoloMarcados">Ver solo lo entregado</button><button class="mini" id="btnDesmarcar">Desmarcar todo</button></div>
+    <p class="nota">Marca lo que se entrega y ajusta la cantidad, la serie o código del equipo y la observación (estado). Solo lo marcado sale en el acta.</p>
+    <div id="secciones"></div>
+    <div><label>Observaciones generales</label><textarea id="fObs" rows="2"></textarea></div>
+    <div class="acciones" style="margin-top:12px">
+      <button class="b" id="btnGuardar">Guardar y pasar a firma</button>
+      <button class="b sec" id="btnLimpiar">Limpiar</button>
+      <span id="msgForm" class="nota"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REGISTRO ============ -->
+<section id="v-registro" class="oculto">
+  <div class="tarjeta">
+    <div class="acciones" style="margin-bottom:10px">
+      <h2 style="margin:0">Actas</h2>
+      <select id="rTec" style="width:auto"></select>
+      <select id="rEstado" style="width:auto"><option value="">Todos los estados</option><option value="pendiente">Pendiente de firma</option><option value="firmada">Firmada</option><option value="observada">Observada</option><option value="anulada">Anulada</option></select>
+      <span style="margin-left:auto"></span>
+      <button class="b sec" id="btnImportarFirma">Importar firma remota</button>
+    </div>
+    <div style="overflow:auto"><table id="tRegistro"><thead><tr><th>N.º</th><th>Fecha</th><th>Técnico</th><th>Unidad</th><th class="n">Ítems</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table></div>
+  </div>
+</section>
+
+<!-- ============ UNIDADES ============ -->
+<section id="v-unidades" class="oculto">
+  <div class="tarjeta">
+    <h2>Unidades vehiculares asignadas</h2>
+    <p class="nota">Última acta vigente (no anulada) de cada placa.</p>
+    <div style="overflow:auto"><table id="tUnidades"><thead><tr><th>Placa</th><th>Tipo</th><th>Marca / modelo</th><th>Técnico</th><th>Desde</th><th class="n">Km</th><th>SOAT</th><th>Rev. técnica</th><th>Acta</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</section>
+
+<!-- ============ CONFIG ============ -->
+<section id="v-config" class="oculto">
+  <div class="tarjeta">
+    <h2>Responsable de almacén</h2>
+    <div class="fila">
+      <div><label>Nombre y apellido</label><input id="aNombre"></div>
+      <div><label>DNI</label><input id="aDni" inputmode="numeric" maxlength="12"></div>
+      <div><label>Sede por defecto</label><input id="aSede"></div>
+      <div><label>WhatsApp de la oficina (recibe constancias)</label><input id="aOfi" type="tel" inputmode="tel" placeholder="987 654 321"></div>
+      <div><label>Vigencia del formato GA-34 desde</label><input id="aVig" type="date"></div>
+    </div>
+    <p class="nota" id="aFirmaInfo"></p>
+  </div>
+  <div class="tarjeta">
+    <h2>Técnicos</h2>
+    <p class="nota" id="tecOrigen">Personal de instaladores del ERP (nombre, DNI, cargo, celular, correo, zona y unidad asignada). El celular y el correo se pueden corregir aquí.</p>
+    <div style="overflow:auto"><table id="tTecs"><thead><tr><th>Técnico</th><th>DNI</th><th>Cargo</th><th>Celular / WhatsApp</th><th>Correo</th><th>Zona</th><th>Unidad (ERP)</th><th>Situación</th></tr></thead><tbody></tbody></table></div>
+    <div class="acciones" style="margin-top:10px"><input id="nTec" placeholder="APELLIDOS Y NOMBRES" style="max-width:340px"><button class="b sec" id="btnNuevoTec">Agregar técnico</button></div>
+  </div>
+  <div class="tarjeta">
+    <h2>Respaldo</h2>
+    <p class="nota">Las actas se guardan en este navegador. Descarga un respaldo con frecuencia y cárgalo en otra computadora para continuar.</p>
+    <div class="acciones">
+      <button class="b" id="btnRespaldo">Descargar respaldo (.json)</button>
+      <label class="b sec" style="display:inline-block;color:var(--azul);margin:0;font-size:14px;cursor:pointer;border:1px solid var(--azul);padding:7px 14px;border-radius:6px">Cargar respaldo<input type="file" id="fRespaldo" accept=".json" class="oculto"></label>
+      <button class="b sec" id="btnCsv">Exportar detalle a CSV</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DOCUMENTO / FIRMA ============ -->
+<section id="v-doc" class="oculto">
+  <div class="acciones noimprimir" style="max-width:820px;margin:0 auto 12px">
+    <button class="b sec" id="btnVolver">← Volver</button>
+    <button class="b sec" id="btnImprimir">Imprimir / PDF</button>
+    <button class="b sec" id="btnEditar">Editar</button>
+    <button class="b sec" id="btnDuplicar">Usar como base</button>
+    <button class="b mal" id="btnAnular">Anular</button>
+  </div>
+  <div class="firmar noimprimir tarjeta" id="panelEnvio">
+    <h2>Enviar al técnico para su firma</h2>
+    <div class="fila">
+      <div><label>Celular / WhatsApp del técnico</label><input id="eCel" type="tel" inputmode="tel" placeholder="987 654 321"></div>
+      <div><label>Correo del técnico</label><input id="eCorreo" type="email" placeholder="tecnico@correo.com"></div>
+    </div>
+    <div class="canales">
+      <button class="b wa" id="btnWa">WhatsApp</button>
+      <button class="b sec" id="btnTg">Telegram</button>
+      <button class="b sec" id="btnSms">SMS</button>
+      <button class="b sec" id="btnCorreo">Correo</button>
+      <button class="b sec" id="btnCompartir">Compartir… (otras apps)</button>
+      <button class="b sec" id="btnEnlace">Copiar enlace</button>
+    </div>
+    <p class="nota" id="eMsg"></p>
+    <p class="nota" id="eHist"></p>
+  </div>
+  <div id="docCont"></div>
+  <div class="firmar noimprimir tarjeta" id="panelFirma">
+    <h2>Firma del técnico</h2>
+    <p>Esta parte la completa <b id="pfNombre"></b>, en este equipo o desde el enlace que le llegó.</p>
+    <div class="fila"><div><label>Confirme su DNI</label><input id="pfDni" inputmode="numeric" maxlength="12"></div></div>
+    <label style="display:flex;gap:8px;align-items:flex-start;color:#1b2333;font-size:14px;margin:8px 0"><input type="checkbox" id="pfAcepto" style="width:auto;margin-top:3px"><span id="pfTexto"></span></label>
+    <label>Firme dentro del recuadro (con el dedo o el mouse)</label>
+    <canvas id="lienzo" class="lienzo"></canvas>
+    <div class="acciones" style="margin-top:10px">
+      <button class="b" id="btnFirmar">Firmar y aceptar</button>
+      <button class="mini" id="btnBorrarFirma">Borrar trazo</button>
+      <span style="margin-left:auto"></span>
+      <button class="b mal" id="btnObservar">No estoy de acuerdo (observar)</button>
+    </div>
+    <p class="nota" id="pfMsg"></p>
+  </div>
+  <div class="firmar noimprimir tarjeta" id="panelAlm">
+    <h2>Firma del responsable de almacén</h2>
+    <div class="acciones" id="almGuardada"></div>
+    <label style="margin-top:8px">Firme dentro del recuadro</label>
+    <canvas id="lienzoAlm" class="lienzo" style="height:160px"></canvas>
+    <div class="acciones" style="margin-top:10px">
+      <button class="b" id="btnFirmarAlm">Firmar como almacén</button>
+      <button class="mini" id="btnBorrarAlm">Borrar trazo</button>
+      <label style="display:flex;gap:6px;align-items:center;margin:0;font-size:13px;color:#1b2333"><input type="checkbox" id="almRecordar" style="width:auto" checked> Recordar mi firma en este navegador</label>
+    </div>
+    <p class="nota" id="almMsg"></p>
+  </div>
+  <div class="firmar noimprimir tarjeta oculto" id="panelRemoto">
+    <h2>Firma registrada ✓</h2>
+    <p>Ahora envíe la constancia a la oficina. Con "Enviar por WhatsApp" se abre WhatsApp con el archivo o el código listo para mandar.</p>
+    <div class="acciones"><button class="b wa" id="btnWaConst">Enviar por WhatsApp</button><button class="b sec" id="btnCompConst">Compartir…</button><button class="b sec" id="btnDescConst">Descargar constancia</button><button class="b sec" id="btnCopiarConst">Copiar código</button><button class="b sec" onclick="window.print()">Guardar PDF</button></div>
+    <p class="nota" id="prMsg"></p>
+  </div>
+</section>
+
+<dialog id="dlgImport" style="max-width:560px;width:95%;border:1px solid var(--borde);border-radius:10px">
+  <h2>Importar firma remota</h2>
+  <p class="nota">Carga el archivo de constancia que envió el técnico o pega el código.</p>
+  <input type="file" id="impArchivo" accept=".json,.txt" style="margin-bottom:8px">
+  <textarea id="impTexto" rows="5" placeholder="Pega aquí el código de la constancia"></textarea>
+  <div class="acciones" style="margin-top:10px"><button class="b" id="impOk">Importar</button><button class="b sec" onclick="dlgImport.close()">Cancelar</button><span id="impMsg" class="nota"></span></div>
+</dialog>
+
+<script>
+const EMPRESA = { razon: 'MYM TELECOMUNICACIONES SIXSEVEN SAC', ruc: '20616250231' };
+const FORMATO = { titulo: 'ACTA DE ENTREGA DE HERRAMIENTAS E IMPLEMENTOS', proceso: 'GESTIÓN ADMINISTRATIVA', codigo: 'GA-34', version: '001' };
+const URL_PUBLICA = 'https://mymtelecomunicacionessixseven-art.github.io/actas/';
+// Técnicos: tecnicos.enc (personal de instaladores del ERP, con celular, correo y unidad asignada; ver cifrar_tecnicos.py).
+// Si aún no existe, se usa el archivo cifrado del reporte de descuentos (solo nombre, DNI y cargo).
+const FUENTES_TECNICOS = ['tecnicos.enc', '../descuentos/privado.enc','https://mymtelecomunicacionessixseven-art.github.io/descuentos/privado.enc'];
+const CLAVE = 'mym.actas.v1';
+const CLAVE_RECORDADA = 'mym.descuentos.clave';   // misma clave que el reporte de descuentos
+
+// Ítems del formato GA-34 (ASIGNACIÓN DE EQUIPOS Y HERRAMIENTAS.docx). [código, descripción, cantidad sugerida]
+const SECCIONES = [
+  { id: 'kit', titulo: 'KIT DE FIBRA COMPLETO', items: [['0010', 'PELADOR DE CABLE DE F.O.', 1], ['0011', 'TIJERAS KEVLAR', 1], ['0012', 'PELADOR DE CABLE DROP', 1], ['0013', 'HERRAMIENTA DE CORTE DE PRECISION', 1], ['0014', 'POWER METER', 1], ['0015', 'VERIFICADOR DE F.O. (LAPIZ OPTICO)', 1], ['0016', 'ENVASE DE ALCOHOL ISOPROPILICO', 1], ['0017', 'ONE CLEANER', 1], ['0018', 'MALETIN PORTA KIT', 1]] },
+  { id: 'herr', titulo: 'HERRAMIENTAS', items: [['0019', 'ALICATE UNIVERSAL', 1], ['0020', 'ALICATE DE CORTE', 1], ['0021', 'ALICATE DE PUNTA', 1], ['0022', 'DETECTOR DE VOLTAJE', 1], ['0023', 'TESTEADOR DE CABLE RED', 1], ['0024', 'CRIMPADORA CABLE DE RED RJ45', 1], ['0025', 'PREPARADORA DE CABLE COAXIAL', 1], ['0026', 'CADENA', 1], ['0027', 'CANDADO', 1], ['0028', 'DESTORNILLADOR PUNTA PLANA', 1], ['0029', 'DESTORNILLADOR PUNTA ESTRELLA', 1], ['0030', 'MARTILLO', 1], ['0031', 'CARTUCHERA – PORTAHERRAMIENTAS', 1], ['0032', 'CAJA DE HERRAMIENTAS', 1], ['0033', 'TALADRO PERCUTOR', 1], ['0034', 'SET BROCAS', 1], ['0035', 'BROCA PASAMURO', 1], ['0036', 'EXTENSION 10MT', 1], ['0037', 'WINCHA PASACABLE ACERADA O NYLON 20mts', 1], ['0038', 'BANDERIN', 1], ['0039', 'PORTABOBINA', 1], ['0040', 'CONOS DE SEGURIDAD', 1], ['0041', 'BARRAS RETRACTIL', 1], ['0042', 'ESCALERA TELESCOPICA DE 28 PASOS (FV)', 1], ['0043', 'ESCALERA TIJERA DE 7 PASOS', 1]] },
+  { id: 'epp', titulo: 'UNIFORME Y EPP', items: [['0044', 'CHALECO', 4], ['0045', 'POLO', 4], ['0046', 'PANTALON', 4], ['0047', 'BOTAS', 2], ['0048', 'CASCO', 2], ['0049', 'BARBIQUEJO', 2], ['0050', 'CORTAVIENTO', 2], ['0051', 'GUANTES BADANA', 2], ['0052', 'GUANTES POLIURETANO', 2], ['0053', 'GUANTES DIELECTRICO', 1], ['0054', 'LENTES DE SEGURIDAD', 2], ['0055', 'LANYARD', 2], ['0056', 'PORTA FOTOCHECK TRANSPARENTE', 2], ['0057', 'ARNÉS', 1], ['0058', 'LINEA DE VIDA', 1], ['0059', 'LINEA DE ANCLAJE', 1], ['0060', 'LINEA DE POSICIONAMIENTO', 1]] },
+  { id: 'adic', titulo: 'IMPLEMENTOS ADICIONALES', items: [['0061', 'TABLERO', 1], ['0062', 'LAPICERO', 1], ['0063', 'CINTA AISLANTE', 1], ['0064', 'CINTA DOBLE CONTACTO', 1], ['0065', 'MARCADOR', 1], ['0066', 'PILAS', 1], ['0067', 'ADAPTADOR PARA LAPTOP', 1]] },
+];
+// Implementos según el tipo de unidad. La van usa la tabla del formato; la moto, una lista propia (editable en el acta).
+const IMPLEMENTOS = {
+  van: [['0001', 'EXTINTOR 1KG', 1], ['0002', 'BOTIQUIN', 1], ['0003', 'TRIANGULOS DE SEGURIDAD', 2], ['0004', 'LLAVE DE RUEDAS', 1], ['0005', 'GATA HIDRAULICA/MECANICA', 1], ['0006', 'LLANTA DE REPUESTO', 1], ['0007', 'VALVULA ACOPLE DE GLP', 1], ['0008', 'REJAS DE VEHICULO', 1], ['0009', 'DUPLICADO DE LLAVE', 1]],
+  moto: [['M001', 'LLAVE DE ENCENDIDO', 1], ['M002', 'DUPLICADO DE LLAVE', 1], ['M003', 'CASCO PARA MOTO CERTIFICADO', 1], ['M004', 'CHALECO REFLECTIVO CON PLACA', 1], ['M005', 'BAUL / CAJA PORTAHERRAMIENTAS', 1], ['M006', 'CANDADO O CADENA ANTIRROBO', 1], ['M007', 'KIT DE HERRAMIENTAS DE LA MOTO', 1], ['M008', 'IMPERMEABLE', 1], ['M009', 'RODILLERAS Y CODERAS', 1]],
+};
+const PARTES = {
+  van: ['Carrocería y pintura', 'Parabrisas y ventanas', 'Luces delanteras y posteriores', 'Direccionales y luces de freno', 'Espejos', 'Llantas', 'Frenos', 'Plumillas', 'Claxon', 'Asientos y tapiz', 'Cinturones de seguridad', 'Tablero e indicadores', 'Batería', 'Nivel de aceite y refrigerante', 'Sistema GLP'],
+  moto: ['Carrocería, tanque y pintura', 'Luces y faro', 'Direccionales y luz de freno', 'Espejos', 'Llantas', 'Frenos', 'Claxon', 'Asiento', 'Tablero e indicadores', 'Cadena y transmisión', 'Batería', 'Nivel de aceite', 'Caballete / pata lateral'],
+};
+const UNIDAD = { van: { nombre: 'VAN CHANGAN NEW VAN', marca: 'CHANGAN', modelo: 'NEW VAN', titulo: 'IMPLEMENTOS VEHICULO' }, moto: { nombre: 'MOTOCICLETA', marca: '', modelo: '', titulo: 'IMPLEMENTOS MOTOCICLETA' } };
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const hoyISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+const fechaCorta = iso => { if (!iso) return ''; const [a, m, d] = iso.split('-'); return `${d}/${m}/${a}`; };
+
+// ---------- Estado ----------
+let E = cargar();
+function cargar() {
+  try { const x = JSON.parse(localStorage.getItem(CLAVE)); if (x && x.actas) return x; } catch (e) {}
+  return { actas: [], tecnicos: {}, correlativo: {}, ajustes: { sede: 'SJM' }, vehiculos: {} };
+}
+function guardar() { localStorage.setItem(CLAVE, JSON.stringify(E)); }
+const A = () => E.ajustes ??= {};
+function tecnicos() { return Object.keys(E.tecnicos).sort((a, b) => a.localeCompare(b, 'es')); }
+function fichaTec(n) { return { dni: '', cargo: 'Técnico instalador', situacion: '', ...(E.tecnicos[n] || {}) }; }
+
+// ---------- Vistas ----------
+let vistaActual = 'nueva';
+function vista(v) {
+  vistaActual = v;
+  document.querySelectorAll('main>section').forEach(s => s.classList.toggle('oculto', s.id !== 'v-' + v));
+  document.querySelectorAll('#menu button').forEach(b => b.classList.toggle('activo', b.dataset.v === v));
+  ({ registro: pintarRegistro, unidades: pintarUnidades, config: pintarConfig }[v] || (() => {}))();
+  scrollTo(0, 0);
+}
+$('#menu').onclick = e => { if (e.target.dataset.v) vista(e.target.dataset.v); };
+
+// ---------- Formulario ----------
+const filaItem = ([codigo, descripcion, cant]) => ({ codigo, descripcion, cant, sel: true, serie: '', obs: '' });
+function seccionesBase() { return SECCIONES.map(s => ({ id: s.id, titulo: s.titulo, items: s.items.map(filaItem) })); }
+function nuevoBorrador() {
+  return { id: null, tecnico: '', fecha: hoyISO(), sede: A().sede || 'SJM', area: 'ALMACÉN Y LOGÍSTICA', resp: A().nombre || E.almacen?.[0]?.nombre || '', respDni: A().nombre ? A().dni || '' : E.almacen?.[0]?.dni || '', unidad: null, secciones: seccionesBase(), obs: '' };
+}
+let borrador = nuevoBorrador(), soloMarcados = false;
+
+function nuevaUnidad(tipo) {
+  const u = UNIDAD[tipo];
+  return { tipo, placa: '', marca: u.marca, modelo: u.modelo, anio: '', color: '', km: '', comb: '1/2', soat: '', revTec: '', lic: '', tarjeta: true, obs: '', estado: PARTES[tipo].map(p => ({ parte: p, est: 'Bueno', obs: '' })), implementos: IMPLEMENTOS[tipo].map(filaItem) };
+}
+
+function llenarSelects() {
+  const op = t => `<option>${esc(t)}</option>`;
+  const ts = tecnicos(), activos = ts.filter(t => fichaTec(t).situacion !== 'Baja'), baja = ts.filter(t => fichaTec(t).situacion === 'Baja');
+  $('#fTec').innerHTML = (ts.length ? '<option value="">— Elegir técnico —</option>' : '<option value="">— Sin técnicos: desbloquea con la clave —</option>')
+    + (baja.length ? `<optgroup label="Activos">${activos.map(op).join('')}</optgroup><optgroup label="De baja">${baja.map(op).join('')}</optgroup>` : ts.map(op).join(''));
+  $('#rTec').innerHTML = '<option value="">Todos los técnicos</option>' + ts.map(op).join('');
+  $('#dlAlmacen').innerHTML = (E.almacen || []).map(p => `<option value="${esc(p.nombre)}">${esc(p.cargo || '')}</option>`).join('');
+  $('#dlPlacas').innerHTML = Object.entries(E.vehiculos || {}).map(([p, v]) => `<option value="${esc(p)}">${esc(UNIDAD[v.tipo]?.nombre || '')} ${esc(v.marca)} ${esc(v.modelo)}</option>`).join('');
+}
+
+function pintarForm() {
+  const b = borrador;
+  $('#tituloForm').textContent = b.id ? 'Editar acta ' + (E.actas.find(a => a.id === b.id) || {}).numero : 'Nueva acta de entrega';
+  $('#fTec').value = b.tecnico;
+  const f = fichaTec(b.tecnico);
+  $('#fDni').value = b.dni ?? f.dni; $('#fCargo').value = b.cargo ?? f.cargo;
+  $('#fFecha').value = b.fecha; $('#fSede').value = b.sede; $('#fArea').value = b.area; $('#fResp').value = b.resp; $('#fRespDni').value = b.respDni;
+  $('#fObs').value = b.obs; $('#notaVeh').textContent = '';
+  document.querySelectorAll('#fUnidad input').forEach(r => r.checked = r.value === (b.unidad?.tipo || ''));
+  pintarUnidad(); pintarSecciones();
+}
+
+function pintarUnidad() {
+  const u = borrador.unidad;
+  $('#cajaUnidad').classList.toggle('oculto', !u);
+  if (!u) return;
+  for (const [k, id] of [['placa', 'uPlaca'], ['marca', 'uMarca'], ['modelo', 'uModelo'], ['anio', 'uAnio'], ['color', 'uColor'], ['km', 'uKm'], ['comb', 'uComb'], ['soat', 'uSoat'], ['revTec', 'uRevTec'], ['lic', 'uLic'], ['obs', 'uObs']]) $('#' + id).value = u[k] || '';
+  $('#uTarjeta').checked = !!u.tarjeta;
+  $('#tEstadoV tbody').innerHTML = u.estado.map((p, i) => `<tr><td>${esc(p.parte)}</td><td><select data-ve="${i}">${['Bueno', 'Regular', 'Malo', 'No aplica'].map(o => `<option${o === p.est ? ' selected' : ''}>${o}</option>`).join('')}</select></td><td><input data-vo="${i}" value="${esc(p.obs)}"></td></tr>`).join('');
+}
+document.querySelectorAll('#fUnidad input').forEach(r => r.onchange = () => {
+  const t = r.value;
+  borrador.unidad = t ? (borrador.unidad?.tipo === t ? borrador.unidad : nuevaUnidad(t)) : null;
+  pintarUnidad(); pintarSecciones();
+});
+const camposU = { uPlaca: 'placa', uMarca: 'marca', uModelo: 'modelo', uAnio: 'anio', uColor: 'color', uKm: 'km', uComb: 'comb', uSoat: 'soat', uRevTec: 'revTec', uLic: 'lic', uObs: 'obs' };
+$('#cajaUnidad').addEventListener('input', e => {
+  const u = borrador.unidad, t = e.target; if (!u) return;
+  if (camposU[t.id]) u[camposU[t.id]] = t.id === 'uPlaca' ? t.value.toUpperCase().trim() : t.value;
+  if (t.id === 'uTarjeta') u.tarjeta = t.checked;
+  if (t.dataset.ve != null) u.estado[t.dataset.ve].est = t.value;
+  if (t.dataset.vo != null) u.estado[t.dataset.vo].obs = t.value;
+});
+$('#uTarjeta').onchange = e => { if (borrador.unidad) borrador.unidad.tarjeta = e.target.checked; };
+$('#tEstadoV').onchange = e => { const u = borrador.unidad, t = e.target; if (u && t.dataset.ve != null) u.estado[t.dataset.ve].est = t.value; };
+// Al elegir una placa conocida se completan sus datos fijos.
+$('#uPlaca').onchange = () => {
+  const v = (E.vehiculos || {})[borrador.unidad.placa]; if (!v) return;
+  if (v.tipo !== borrador.unidad.tipo) return;
+  Object.assign(borrador.unidad, { marca: v.marca, modelo: v.modelo, anio: v.anio, color: v.color, soat: v.soat || borrador.unidad.soat, revTec: v.revTec || borrador.unidad.revTec, km: v.km || borrador.unidad.km });
+  pintarUnidad();
+};
+
+function todasLasSecciones() {
+  const s = [];
+  if (borrador.unidad) s.push({ id: 'veh', titulo: UNIDAD[borrador.unidad.tipo].titulo, items: borrador.unidad.implementos });
+  return s.concat(borrador.secciones);
+}
+function pintarSecciones() {
+  $('#secciones').innerHTML = todasLasSecciones().map((s, si) => {
+    const marcados = s.items.filter(i => i.sel).length;
+    const filas = s.items.map((it, ii) => (soloMarcados && !it.sel) ? '' : `<tr class="${it.sel ? '' : 'no'}"><td style="width:28px"><input type="checkbox" data-s="${si}" data-i="${ii}" data-k="sel"${it.sel ? ' checked' : ''} style="width:auto"></td><td style="width:62px">${esc(it.codigo)}</td><td>${it.nuevo ? `<input data-s="${si}" data-i="${ii}" data-k="descripcion" value="${esc(it.descripcion)}" placeholder="Descripción">` : esc(it.descripcion)}</td><td style="width:74px"><input type="number" min="0" data-s="${si}" data-i="${ii}" data-k="cant" value="${it.cant}" style="text-align:right"></td><td style="width:150px"><input data-s="${si}" data-i="${ii}" data-k="serie" value="${esc(it.serie)}" placeholder="Serie / código"></td><td><input data-s="${si}" data-i="${ii}" data-k="obs" value="${esc(it.obs)}" placeholder="Nuevo, usado, buen estado…"></td></tr>`).join('');
+    return `<details class="sec-items" open><summary>${esc(s.titulo)}<span class="nota">${marcados} de ${s.items.length} marcados</span></summary>
+      <div style="overflow:auto"><table><thead><tr><th><input type="checkbox" data-todo="${si}" style="width:auto"${marcados === s.items.length ? ' checked' : ''} title="Marcar todo"></th><th>Código</th><th>Descripción</th><th class="n">Cant.</th><th>Serie o código</th><th>Observaciones</th></tr></thead><tbody>${filas}</tbody></table></div>
+      <div style="padding:6px 8px"><button class="mini" data-otro="${si}">+ Otro ítem en esta sección</button></div></details>`;
+  }).join('');
+}
+$('#secciones').addEventListener('input', e => {
+  const t = e.target, { s, i, k } = t.dataset; if (k == null) return;
+  const it = todasLasSecciones()[s].items[i];
+  if (k === 'sel') { it.sel = t.checked; pintarSecciones(); return; }
+  it[k] = k === 'cant' ? Math.max(0, +t.value || 0) : k === 'descripcion' ? t.value.toUpperCase() : t.value;
+});
+$('#secciones').addEventListener('click', e => {
+  const t = e.target;
+  if (t.dataset.todo != null) { const s = todasLasSecciones()[t.dataset.todo]; s.items.forEach(i => i.sel = t.checked); pintarSecciones(); }
+  if (t.dataset.otro != null) { e.preventDefault(); const s = todasLasSecciones()[t.dataset.otro]; s.items.push({ codigo: 'ADD-' + (s.items.length + 1), descripcion: '', cant: 1, sel: true, serie: '', obs: '', nuevo: true }); pintarSecciones(); }
+});
+$('#btnSoloMarcados').onclick = () => { soloMarcados = !soloMarcados; $('#btnSoloMarcados').textContent = soloMarcados ? 'Ver todos los ítems' : 'Ver solo lo entregado'; pintarSecciones(); };
+$('#btnDesmarcar').onclick = () => { todasLasSecciones().forEach(s => s.items.forEach(i => i.sel = false)); pintarSecciones(); };
+
+const textoVeh = v => [v.texto, v.placa && 'placa ' + v.placa].filter(Boolean).join(' · ');
+$('#fTec').onchange = () => {
+  borrador.tecnico = $('#fTec').value; delete borrador.dni; delete borrador.cargo;
+  const f = fichaTec(borrador.tecnico), v = f.vehiculo;
+  $('#fDni').value = f.dni; $('#fCargo').value = f.cargo;
+  // En un acta nueva se propone la unidad que el ERP tiene asignada al técnico (van o moto).
+  if (!borrador.id) {
+    if (borrador.unidad?.delErp) borrador.unidad = null;
+    if (v && (v.tipo === 'van' || v.tipo === 'moto')) {
+      borrador.unidad = { ...nuevaUnidad(v.tipo), placa: v.placa || '', anio: v.anio || '', color: v.color || '', delErp: true, ...(v.tipo === 'moto' ? { marca: v.marca || '', modelo: v.modelo || '' } : {}) };
+      const conocido = (E.vehiculos || {})[v.placa]; if (conocido && conocido.tipo === v.tipo) Object.assign(borrador.unidad, { km: conocido.km || '', soat: conocido.soat || '', revTec: conocido.revTec || '' });
+    }
+    document.querySelectorAll('#fUnidad input').forEach(r => r.checked = r.value === (borrador.unidad?.tipo || ''));
+    pintarUnidad(); pintarSecciones();
+  }
+  $('#notaVeh').textContent = !v ? '' : (v.tipo === 'otro' ? `Vehículo en el ERP: ${textoVeh(v)} (no es van ni moto; elige la unidad a mano si corresponde).` : `Unidad asignada en el ERP: ${textoVeh(v)}. Se completó abajo; revísala.`);
+};
+$('#fResp').onchange = () => { const p = (E.almacen || []).find(x => x.nombre === $('#fResp').value.trim().toUpperCase()); if (p) { $('#fResp').value = p.nombre; $('#fRespDni').value = p.dni; } };
+function msg(t) { $('#msgForm').textContent = t; $('#msgForm').style.color = t ? 'var(--mal)' : ''; }
+$('#btnLimpiar').onclick = () => { if (confirm('¿Limpiar el formulario?')) { borrador = nuevoBorrador(); pintarForm(); msg(''); } };
+
+// Lo que se guarda en el acta: solo los ítems marcados con cantidad.
+const entregados = items => items.filter(i => i.sel && i.cant > 0 && i.descripcion.trim()).map(({ codigo, descripcion, cant, serie, obs }) => ({ codigo, descripcion: descripcion.trim(), cant, serie: serie.trim(), obs: obs.trim() }));
+
+$('#btnGuardar').onclick = () => {
+  const b = borrador;
+  b.tecnico = $('#fTec').value;
+  if (!b.tecnico) return msg('Elige el técnico.');
+  const dni = $('#fDni').value.trim(), cargo = $('#fCargo').value.trim();
+  if (!/^\d{8,12}$/.test(dni)) return msg('Ingresa el DNI o CE del técnico (8 a 12 dígitos).');
+  Object.assign(b, { fecha: $('#fFecha').value, sede: $('#fSede').value.trim(), area: $('#fArea').value.trim(), resp: $('#fResp').value.trim(), respDni: $('#fRespDni').value.trim(), obs: $('#fObs').value.trim() });
+  if (!b.fecha) return msg('Falta la fecha.');
+  if (!b.resp) return msg('Falta el responsable de almacén.');
+  let unidad = null;
+  if (b.unidad) {
+    const u = b.unidad;
+    if (!/^[A-Z0-9]{1,4}-?[A-Z0-9]{2,4}$/.test(u.placa)) return msg('Ingresa la placa de la unidad (ej. ABC-123 o 1234-AB).');
+    const { delErp, ...resto } = u;
+    unidad = { ...resto, estado: u.estado.map(p => ({ ...p })), implementos: entregados(u.implementos) };
+    E.vehiculos ??= {};
+    E.vehiculos[u.placa] = { tipo: u.tipo, marca: u.marca, modelo: u.modelo, anio: u.anio, color: u.color, soat: u.soat, revTec: u.revTec, km: u.km };
+  }
+  const secciones = b.secciones.map(s => ({ titulo: s.titulo, items: entregados(s.items) })).filter(s => s.items.length);
+  if (!secciones.length && !unidad) return msg('Marca al menos un ítem o una unidad vehicular.');
+  E.tecnicos[b.tecnico] = { ...(E.tecnicos[b.tecnico] || {}), dni, cargo };
+  if (b.resp && !A().nombre) { A().nombre = b.resp; A().dni = b.respDni; }
+  const datos = { tecnico: b.tecnico, dni, cargo, fecha: b.fecha, sede: b.sede, area: b.area, resp: b.resp, respDni: b.respDni, unidad, secciones, obs: b.obs, borrador: structuredClone({ secciones: b.secciones, unidad: b.unidad }) };
+  let a;
+  if (b.id) {
+    a = E.actas.find(x => x.id === b.id);
+    Object.assign(a, datos, { estado: 'pendiente', firma: null, firmaAlm: null, editada: new Date().toISOString() });
+  } else {
+    const anio = b.fecha.slice(0, 4);
+    E.correlativo[anio] = (E.correlativo[anio] || 0) + 1;
+    a = { id: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), numero: `AE-${anio}-${String(E.correlativo[anio]).padStart(3, '0')}`, ...datos, estado: 'pendiente', firma: null, firmaAlm: null, creada: new Date().toISOString() };
+    E.actas.push(a);
+  }
+  guardar();
+  borrador = nuevoBorrador(); pintarForm(); llenarSelects(); msg('');
+  abrirDoc(a.id);
+};
+
+// ---------- Documento ----------
+function contenidoFirmable(a) {
+  const u = a.unidad;
+  return JSON.stringify({ numero: a.numero, empresa: EMPRESA.ruc, formato: FORMATO.codigo + '/' + FORMATO.version, tecnico: a.tecnico, dni: a.dni, cargo: a.cargo, fecha: a.fecha, sede: a.sede, resp: a.resp,
+    unidad: u ? [u.tipo, u.placa, u.marca, u.modelo, u.anio, u.color, u.km, u.comb, u.soat, u.revTec, u.lic, u.tarjeta, u.obs, u.estado.map(p => [p.parte, p.est, p.obs]), u.implementos.map(i => [i.codigo, i.descripcion, i.cant, i.serie, i.obs])] : null,
+    secciones: a.secciones.map(s => [s.titulo, s.items.map(i => [i.codigo, i.descripcion, i.cant, i.serie, i.obs])]), obs: a.obs });
+}
+async function huella(texto) {
+  if (crypto.subtle) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texto)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+  let h = 2166136261; for (const c of texto) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; } return 'fnv-' + h.toString(16);
+}
+const nombreUnidad = u => u ? `${UNIDAD[u.tipo].nombre}${u.tipo === 'moto' && (u.marca || u.modelo) ? ' ' + [u.marca, u.modelo].filter(Boolean).join(' ') : ''} · placa ${u.placa}` : '';
+const textoAceptacion = a => `Yo, ${a.tecnico}, con DNI ${a.dni}, declaro haber recibido en buen estado los equipos y herramientas detallados en el acta ${a.numero}${a.unidad ? `, así como la unidad vehicular ${nombreUnidad(a.unidad)} con sus documentos e implementos,` : ''} y acepto las condiciones de cuidado, devolución y responsabilidad indicadas en ella.`;
+
+function tablaItems(titulo, items) {
+  return `<table><thead><tr><th colspan="5" class="tit">${esc(titulo)}</th></tr><tr><th style="width:15%">SERIE O CÓDIGO</th><th>DESCRIPCIÓN</th><th style="width:8%">CANT.</th><th style="width:30%">OBSERVACIONES</th></tr></thead><tbody>${items.map(i => `<tr><td>${esc(i.serie ? i.serie : i.codigo)}${i.serie ? `<div style="font-size:9.5px;color:#555">${esc(i.codigo)}</div>` : ''}</td><td>${esc(i.descripcion)}</td><td style="text-align:center">${i.cant}</td><td>${esc(i.obs)}</td></tr>`).join('')}</tbody></table>`;
+}
+function htmlDoc(a) {
+  const u = a.unidad, f = a.firma, fa = a.firmaAlm;
+  const firmaTec = f && f.tipo === 'firma' ? `<img src="${f.img}" alt="Firma del técnico">` : '<div style="height:80px"></div>';
+  const firmaAlm = fa ? `<img src="${fa.img}" alt="Firma de almacén">` : '<div style="height:80px"></div>';
+  const vig = A().vig ? fechaCorta(A().vig) : '';
+  const bloqueUnidad = u ? `
+  <table><thead><tr><th colspan="6" class="tit">UNIDAD VEHICULAR ASIGNADA: ${esc(UNIDAD[u.tipo].nombre)}</th></tr></thead><tbody>
+    <tr><td><b>Placa</b></td><td>${esc(u.placa)}</td><td><b>Marca / modelo</b></td><td>${esc([u.marca, u.modelo].filter(Boolean).join(' '))}</td><td><b>Año / color</b></td><td>${esc([u.anio, u.color].filter(Boolean).join(' / '))}</td></tr>
+    <tr><td><b>Kilometraje</b></td><td>${esc(u.km)}</td><td><b>Combustible</b></td><td>${esc(u.comb)}</td><td><b>Tarjeta de propiedad</b></td><td>${u.tarjeta ? 'Sí' : 'No'}</td></tr>
+    <tr><td><b>SOAT vence</b></td><td>${fechaCorta(u.soat)}</td><td><b>Rev. técnica vence</b></td><td>${fechaCorta(u.revTec)}</td><td><b>Licencia del técnico</b></td><td>${esc(u.lic)}</td></tr>
+  </tbody></table>
+  <table><thead><tr><th colspan="3" class="tit">ESTADO DE LA UNIDAD AL MOMENTO DE LA ENTREGA</th></tr><tr><th>PARTE</th><th style="width:16%">ESTADO</th><th>OBSERVACIÓN</th></tr></thead><tbody>${u.estado.map(p => `<tr><td>${esc(p.parte)}</td><td style="text-align:center">${esc(p.est)}</td><td>${esc(p.obs)}</td></tr>`).join('')}${u.obs ? `<tr><td colspan="3"><b>Daños o detalles visibles:</b> ${esc(u.obs)}</td></tr>` : ''}</tbody></table>
+  ${u.implementos.length ? tablaItems(UNIDAD[u.tipo].titulo, u.implementos) : ''}` : '';
+  const sello = [f && `<div class="sello">TÉCNICO · ${f.tipo === 'firma' ? 'FIRMADO ELECTRÓNICAMENTE' : 'OBSERVADO'} · ${new Date(f.fecha).toLocaleString('es-PE')} · DNI ingresado: ${esc(f.dni)} · Medio: ${f.remoto ? 'enlace remoto' : 'equipo de la empresa'}<br>${f.tipo === 'firma' ? 'Aceptación: ' + esc(f.aceptacion) : 'Motivo: ' + esc(f.comentario)}<br>Huella SHA-256 del acta: ${f.hash}</div>`,
+    fa && `<div class="sello" style="margin-top:6px">ALMACÉN · firmado por ${esc(fa.nombre)} · ${new Date(fa.fecha).toLocaleString('es-PE')} · huella ${fa.hash}</div>`].filter(Boolean).join('');
+  return `<div class="doc">
+  <table class="cab"><tbody>
+    <tr><td rowspan="2" style="width:24%;text-align:center"><img src="logo.png" alt="MYM" style="max-width:150px;max-height:60px"></td><td colspan="3" style="text-align:center;font-weight:bold;font-size:13px">${FORMATO.titulo}${u ? ' Y UNIDAD VEHICULAR' : ''}</td></tr>
+    <tr><td>PROCESO: ${FORMATO.proceso}</td><td>Vigencia desde: ${vig}</td><td>Código: ${FORMATO.codigo} · Versión: ${FORMATO.version}</td></tr>
+  </tbody></table>
+  <div style="text-align:right;font-size:11.5px;margin:-4px 0 4px">N.º ${esc(a.numero)}</div>
+  <table><tbody>
+    <tr><td style="width:24%"><b>ÁREA</b></td><td colspan="3">${esc(a.area)}</td></tr>
+    <tr><td><b>RESPONSABLE DE ALMACÉN</b></td><td colspan="3">${esc(a.resp)}</td></tr>
+    <tr><td><b>FECHA</b></td><td>${fechaCorta(a.fecha)}</td><td style="width:14%"><b>SEDE</b></td><td>${esc(a.sede)}</td></tr>
+  </tbody></table>
+  <p>Yo, <b>${esc(a.tecnico)}</b>, identificado con DNI <b>${esc(a.dni)}</b>, declaro haber recibido los Equipos y Herramientas en buen estado, los cuales me comprometo a cuidarlos y utilizarlos correctamente de acuerdo con las actividades asignadas en el trabajo, también a devolverlos cuando tenga que dejar el servicio por algún motivo o por el desgaste de uso.</p>
+  <p>Me responsabilizo por la pérdida de equipos o herramientas bajo mi cargo. Así mismo, acepto con la presente la retención de pagos pendientes hasta tanto mi persona haya devuelto la totalidad de equipos descritos en buenas condiciones de funcionamiento y uso.</p>
+  ${u ? `<p>Asimismo, declaro haber recibido la unidad vehicular <b>${esc(nombreUnidad(u))}</b>, con los documentos e implementos detallados y en el estado indicado. Me comprometo a utilizarla únicamente para las actividades asignadas por la empresa, conducirla con licencia vigente y respetando las normas de tránsito, no prestarla a terceros, mantenerla limpia, reportar de inmediato cualquier falla, accidente, robo o infracción, y devolverla en el mismo estado, salvo el desgaste normal por uso. Las papeletas y los daños ocasionados por mi responsabilidad serán asumidos por mi persona, conforme a mi contrato de trabajo y a la normativa vigente.</p>` : ''}
+  ${bloqueUnidad}
+  ${a.secciones.map(s => tablaItems(s.titulo, s.items)).join('')}
+  ${a.obs ? `<p><b>Observaciones:</b> ${esc(a.obs)}</p>` : ''}
+  <div class="firmas">
+    <div>${firmaTec}<div class="linea"><b>TÉCNICO</b><br>NOMBRE Y APELLIDO: ${esc(a.tecnico)}<br>DNI: ${esc(a.dni)}</div></div>
+    <div>${firmaAlm}<div class="linea"><b>JEFE DE ALMACÉN</b><br>NOMBRE Y APELLIDO: ${esc(a.resp)}<br>DNI: ${esc(a.respDni)}</div></div>
+  </div>
+  ${sello}
+</div>`;
+}
+
+let docActual = null, modoRemoto = false;
+function abrirDoc(id, acta) {
+  const a = acta || E.actas.find(x => x.id === id);
+  docActual = a;
+  document.querySelectorAll('main>section').forEach(s => s.classList.toggle('oculto', s.id !== 'v-doc'));
+  document.querySelectorAll('#menu button').forEach(b => b.classList.remove('activo'));
+  $('#docCont').innerHTML = htmlDoc(a);
+  const firmable = a.estado === 'pendiente' || a.estado === 'observada';
+  $('#panelFirma').classList.toggle('oculto', !firmable || (modoRemoto && !!a.firma));
+  $('#panelRemoto').classList.toggle('oculto', !(modoRemoto && a.firma));
+  $('#panelAlm').classList.toggle('oculto', modoRemoto || a.estado === 'anulada' || !!a.firmaAlm);
+  ['#btnVolver', '#btnDuplicar'].forEach(s => $(s).classList.toggle('oculto', modoRemoto));
+  $('#btnEditar').classList.toggle('oculto', modoRemoto || a.estado === 'firmada' || a.estado === 'anulada');
+  $('#btnAnular').classList.toggle('oculto', modoRemoto || a.estado === 'anulada');
+  $('#panelEnvio').classList.toggle('oculto', modoRemoto || !firmable);
+  if (!modoRemoto) { pintarEnvio(a); pintarAlm(); }
+  $('#pfNombre').textContent = a.tecnico;
+  $('#pfTexto').textContent = textoAceptacion(a);
+  $('#pfDni').value = ''; $('#pfAcepto').checked = false; $('#pfMsg').textContent = '';
+  requestAnimationFrame(() => { firmaTec.limpiar(); firmaAlm.limpiar(); });
+  scrollTo(0, 0);
+}
+$('#btnVolver').onclick = () => vista('registro');
+$('#btnImprimir').onclick = () => print();
+function aBorrador(a, conId) {
+  const base = a.borrador ? structuredClone(a.borrador) : { secciones: seccionesBase(), unidad: a.unidad ? { ...nuevaUnidad(a.unidad.tipo), ...structuredClone(a.unidad), implementos: nuevaUnidad(a.unidad.tipo).implementos } : null };
+  return { id: conId ? a.id : null, tecnico: conId ? a.tecnico : '', dni: conId ? a.dni : undefined, cargo: conId ? a.cargo : undefined, fecha: conId ? a.fecha : hoyISO(), sede: a.sede, area: a.area, resp: a.resp, respDni: a.respDni, unidad: base.unidad, secciones: base.secciones, obs: conId ? a.obs : '' };
+}
+$('#btnEditar').onclick = () => {
+  if (docActual.firma && !confirm('El acta tiene una observación. Al editarla vuelve a quedar pendiente de firma. ¿Continuar?')) return;
+  borrador = aBorrador(docActual, true); if (borrador.dni === undefined) delete borrador.dni; vista('nueva'); pintarForm();
+};
+$('#btnDuplicar').onclick = () => { borrador = aBorrador(docActual, false); delete borrador.dni; delete borrador.cargo; vista('nueva'); pintarForm(); msg(''); };
+$('#btnAnular').onclick = () => {
+  const motivo = prompt('Motivo de la anulación (ej. devolución de la unidad, cambio de técnico):');
+  if (!motivo) return;
+  Object.assign(docActual, { estado: 'anulada', anulacion: { motivo, fecha: new Date().toISOString() } });
+  guardar(); abrirDoc(docActual.id);
+};
+
+// ---------- Lienzos de firma ----------
+function crearLienzo(lz, alto) {
+  let ctx, trazando = false;
+  const L = { hay: false };
+  L.limpiar = () => {
+    const r = lz.getBoundingClientRect(), k = devicePixelRatio || 1;
+    lz.width = Math.max(300, r.width) * k; lz.height = alto * k;
+    ctx = lz.getContext('2d'); ctx.scale(k, k);
+    ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#0b2a6f';
+    L.hay = false;
+  };
+  const pos = e => { const r = lz.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  lz.onpointerdown = e => { trazando = true; lz.setPointerCapture(e.pointerId); ctx.beginPath(); ctx.moveTo(...pos(e)); };
+  lz.onpointermove = e => { if (!trazando) return; ctx.lineTo(...pos(e)); ctx.stroke(); L.hay = true; };
+  lz.onpointerup = lz.onpointercancel = () => { trazando = false; };
+  // Recorta el área con trazo y la exporta pequeña para que la constancia sea liviana.
+  L.imagen = () => {
+    const w = lz.width, h = lz.height, px = lz.getContext('2d').getImageData(0, 0, w, h).data, k = devicePixelRatio || 1;
+    let x0 = w, y0 = h, x1 = 0, y1 = 0;
+    for (let y = 0; y < h; y += 2) for (let x = 0; x < w; x += 2) if (px[(y * w + x) * 4 + 3] > 0) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    const m = 8 * k; x0 = Math.max(0, x0 - m); y0 = Math.max(0, y0 - m); x1 = Math.min(w, x1 + m); y1 = Math.min(h, y1 + m);
+    const f = Math.min(1, 320 / (x1 - x0));
+    const c = document.createElement('canvas'); c.width = (x1 - x0) * f; c.height = (y1 - y0) * f;
+    c.getContext('2d').drawImage(lz, x0, y0, x1 - x0, y1 - y0, 0, 0, c.width, c.height);
+    return c.toDataURL('image/png');
+  };
+  return L;
+}
+const firmaTec = crearLienzo($('#lienzo'), 200), firmaAlm = crearLienzo($('#lienzoAlm'), 160);
+$('#btnBorrarFirma').onclick = firmaTec.limpiar;
+$('#btnBorrarAlm').onclick = firmaAlm.limpiar;
+addEventListener('resize', () => { if ($('#v-doc').classList.contains('oculto')) return; if (!firmaTec.hay) firmaTec.limpiar(); if (!firmaAlm.hay) firmaAlm.limpiar(); });
+
+async function registrarRespuesta(tipo) {
+  const a = docActual, dni = $('#pfDni').value.trim();
+  const err = t => { $('#pfMsg').textContent = t; $('#pfMsg').style.color = 'var(--mal)'; };
+  if (dni !== a.dni) return err('El DNI no coincide con el del acta.');
+  let firma = { tipo, dni, fecha: new Date().toISOString(), remoto: modoRemoto, hash: await huella(contenidoFirmable(a)), agente: navigator.userAgent.slice(0, 160) };
+  if (tipo === 'firma') {
+    if (!$('#pfAcepto').checked) return err('Marque la casilla de aceptación.');
+    if (!firmaTec.hay) return err('Falta la firma en el recuadro.');
+    firma = { ...firma, img: firmaTec.imagen(), aceptacion: textoAceptacion(a) };
+  } else {
+    const c = prompt('Indique qué falta o qué no coincide con lo recibido:');
+    if (!c) return;
+    firma.comentario = c;
+  }
+  a.firma = firma; a.estado = tipo === 'firma' ? 'firmada' : 'observada';
+  if (!modoRemoto) guardar();
+  abrirDoc(a.id, a);
+}
+$('#btnFirmar').onclick = () => registrarRespuesta('firma');
+$('#btnObservar').onclick = () => registrarRespuesta('observacion');
+
+function pintarAlm() {
+  const g = A().firma;
+  $('#almGuardada').innerHTML = g ? `<img src="${g}" alt="" style="max-height:60px;border:1px solid var(--borde);border-radius:6px;padding:4px;background:#fff"><button class="b" id="btnUsarAlm">Firmar con mi firma guardada</button><button class="mini" id="btnOlvidarAlm">Olvidar firma guardada</button>` : '';
+  $('#almMsg').textContent = `Firma como ${docActual.resp || '(sin responsable)'}.`;
+}
+async function firmarAlm(img) {
+  const a = docActual;
+  a.firmaAlm = { img, nombre: a.resp, dni: a.respDni, fecha: new Date().toISOString(), hash: await huella(contenidoFirmable(a)) };
+  guardar(); abrirDoc(a.id);
+}
+$('#almGuardada').onclick = e => {
+  if (e.target.id === 'btnUsarAlm') firmarAlm(A().firma);
+  if (e.target.id === 'btnOlvidarAlm') { delete A().firma; guardar(); pintarAlm(); }
+};
+$('#btnFirmarAlm').onclick = () => {
+  if (!firmaAlm.hay) { $('#almMsg').textContent = 'Falta la firma en el recuadro.'; return; }
+  const img = firmaAlm.imagen();
+  if ($('#almRecordar').checked) A().firma = img;
+  firmarAlm(img);
+};
+
+// ---------- Envío del enlace de firma ----------
+const b64 = s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const deb64 = s => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/'))));
+const baseEnlace = () => location.protocol === 'https:' ? location.origin + location.pathname : URL_PUBLICA;
+// Celular peruano de 9 dígitos → 51 + número; si ya trae código de país, se respeta.
+const telWa = t => { const d = String(t || '').replace(/\D/g, ''); return d.length === 9 ? '51' + d : d; };
+// El acta viaja dentro del enlace, comprimida (deflate) para que el mensaje no sea enorme.
+const bytesB64 = u => { let s = ''; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const b64Bytes = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function comprimir(texto) {
+  const r = new Blob([texto]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+  return bytesB64(new Uint8Array(await new Response(r).arrayBuffer()));
+}
+async function descomprimir(s) { return await new Response(new Blob([b64Bytes(s)]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text(); }
+let enlaceListo = '';
+async function enlaceFirma(a) {
+  const { id, numero, tecnico, dni, cargo, fecha, sede, area, resp, respDni, unidad, secciones, obs } = a;
+  const datos = { id, numero, tecnico, dni, cargo, fecha, sede, area, resp, respDni, unidad, secciones, obs };
+  const ofi = telWa(A().ofi); if (ofi) datos.ofi = ofi;
+  if (A().vig) datos.vig = A().vig;
+  const json = JSON.stringify(datos);
+  return baseEnlace() + (window.CompressionStream ? '#f=' + await comprimir(json) : '#firmar=' + b64(json));
+}
+// Se arma al abrir el acta para que los botones abran WhatsApp/Telegram sin esperar (y sin bloqueo de ventanas).
+async function prepararEnlace(a) { enlaceListo = ''; enlaceListo = await enlaceFirma(a); }
+const nombreCorto = t => { const p = t.includes(',') ? t.split(',')[1] : t; return (p.trim().split(/\s+/)[0] || '').toLowerCase().replace(/^./, c => c.toUpperCase()); };
+function mensajeFirma(a) {
+  const n = a.secciones.reduce((s, x) => s + x.items.length, 0);
+  return `Hola ${nombreCorto(a.tecnico)}, ${EMPRESA.razon} te envía el acta ${a.numero} de entrega de ${n} herramienta(s) e implementos${a.unidad ? ` y de la unidad ${nombreUnidad(a.unidad)}` : ''}.\n\nRevísala y fírmala desde tu celular en este enlace:\n${enlaceListo}\n\nAl firmar, envía la constancia a la oficina.`;
+}
+function pintarEnvio(a) {
+  const f = fichaTec(a.tecnico);
+  $('#eCel').value = f.celular || ''; $('#eCorreo').value = f.correo || '';
+  $('#eMsg').textContent = '';
+  if (a.estado === 'pendiente' || a.estado === 'observada') prepararEnlace(a);
+  $('#eHist').textContent = (a.envios || []).map(x => `Enviado por ${x.medio}${x.a ? ' a ' + x.a : ''} el ${new Date(x.fecha).toLocaleString('es-PE')}`).join(' · ');
+}
+function guardarContacto() {
+  const t = docActual.tecnico;
+  E.tecnicos[t] = { ...(E.tecnicos[t] || {}), celular: $('#eCel').value.trim(), correo: $('#eCorreo').value.trim() };
+  guardar();
+}
+function registrarEnvio(medio, a) {
+  const x = E.actas.find(z => z.id === docActual.id); if (!x) return;
+  (x.envios ??= []).push({ medio, a, fecha: new Date().toISOString() }); guardar(); pintarEnvio(x);
+}
+const eErr = t => { $('#eMsg').textContent = t; $('#eMsg').style.color = 'var(--mal)'; };
+function celular() { if (!enlaceListo) { eErr('Preparando el enlace, intenta de nuevo.'); return null; } const tel = telWa($('#eCel').value); if (tel.length < 10) { eErr('Escribe el celular del técnico (9 dígitos).'); return null; } guardarContacto(); return tel; }
+['#eCel', '#eCorreo'].forEach(s => $(s).onchange = guardarContacto);
+$('#btnWa').onclick = () => { const tel = celular(); if (!tel) return; open('https://wa.me/' + tel + '?text=' + encodeURIComponent(mensajeFirma(docActual)), '_blank'); registrarEnvio('WhatsApp', $('#eCel').value.trim()); };
+$('#btnSms').onclick = () => { const tel = celular(); if (!tel) return; location.href = 'sms:+' + tel + '?&body=' + encodeURIComponent(mensajeFirma(docActual)); registrarEnvio('SMS', $('#eCel').value.trim()); };
+$('#btnTg').onclick = () => { if (!enlaceListo) return eErr('Preparando el enlace, intenta de nuevo.'); guardarContacto(); const a = docActual; open('https://t.me/share/url?url=' + encodeURIComponent(enlaceListo) + '&text=' + encodeURIComponent(`Acta ${a.numero} de ${EMPRESA.razon}: revísala y fírmala en este enlace.`), '_blank'); registrarEnvio('Telegram', ''); };
+$('#btnCorreo').onclick = () => {
+  const correo = $('#eCorreo').value.trim();
+  if (!enlaceListo) return eErr('Preparando el enlace, intenta de nuevo.');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)) return eErr('Escribe un correo válido.');
+  guardarContacto();
+  location.href = 'mailto:' + encodeURIComponent(correo) + '?subject=' + encodeURIComponent(`Acta de entrega ${docActual.numero} - MYM Telecomunicaciones`) + '&body=' + encodeURIComponent(mensajeFirma(docActual));
+  registrarEnvio('correo', correo);
+};
+$('#btnCompartir').onclick = async () => {
+  guardarContacto();
+  if (!navigator.share) return eErr('Este navegador no tiene "Compartir"; usa Copiar enlace.');
+  if (!enlaceListo) return eErr('Preparando el enlace, intenta de nuevo.');
+  try { await navigator.share({ title: `Acta ${docActual.numero}`, text: mensajeFirma(docActual) }); registrarEnvio('Compartir', ''); } catch (e) {}
+};
+$('#btnEnlace').onclick = async () => {
+  guardarContacto();
+  const url = enlaceListo || await enlaceFirma(docActual);
+  try { await navigator.clipboard.writeText(url); $('#eMsg').style.color = ''; $('#eMsg').textContent = 'Enlace copiado.'; } catch (e) { prompt('Copia este enlace:', url); }
+  registrarEnvio('enlace copiado', '');
+};
+
+// ---------- Constancia (vuelta de la firma remota) ----------
+function constancia() { return b64(JSON.stringify({ id: docActual.id, numero: docActual.numero, firma: docActual.firma, estado: docActual.estado })); }
+const archivoConst = () => new File([JSON.stringify({ constanciaActaMYM: constancia() })], `constancia_${docActual.numero}.json`, { type: 'application/json' });
+const textoConst = () => `Constancia de firma ${docActual.numero} - ${docActual.tecnico}`;
+$('#btnWaConst').onclick = async () => {
+  const f = archivoConst();
+  // En el celular se comparte el archivo (WhatsApp lo acepta); si no se puede, se manda el código como texto.
+  if (navigator.canShare && navigator.canShare({ files: [f] })) {
+    try { await navigator.share({ files: [f], title: f.name, text: textoConst() }); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  open('https://wa.me/' + (docActual.ofi || '') + '?text=' + encodeURIComponent(`${textoConst()}:\n${constancia()}`), '_blank');
+};
+$('#btnCompConst').onclick = async () => {
+  const f = archivoConst();
+  try { if (navigator.canShare && navigator.canShare({ files: [f] })) await navigator.share({ files: [f], title: f.name, text: textoConst() }); else await navigator.share({ text: `${textoConst()}:\n${constancia()}` }); } catch (e) {}
+};
+$('#btnDescConst').onclick = () => descargar(archivoConst().name, JSON.stringify({ constanciaActaMYM: constancia() }));
+$('#btnCopiarConst').onclick = async () => { try { await navigator.clipboard.writeText(constancia()); $('#prMsg').textContent = 'Código copiado. Péguelo en WhatsApp para la oficina.'; } catch (e) { prompt('Copie el código:', constancia()); } };
+
+$('#btnImportarFirma').onclick = () => { $('#impTexto').value = ''; $('#impArchivo').value = ''; $('#impMsg').textContent = ''; dlgImport.showModal(); };
+$('#impArchivo').onchange = async e => { const f = e.target.files[0]; if (!f) return; const t = await f.text(); try { $('#impTexto').value = JSON.parse(t).constanciaActaMYM || t; } catch (x) { $('#impTexto').value = t.trim(); } };
+$('#impOk').onclick = async () => {
+  const m = t => { $('#impMsg').textContent = t; };
+  // Acepta el código solo o el mensaje completo de WhatsApp (toma la última palabra larga).
+  const txt = $('#impTexto').value.trim(), cod = (txt.match(/[A-Za-z0-9_-]{40,}/g) || [txt]).pop();
+  let c; try { c = JSON.parse(deb64(cod)); } catch (e) { return m('Código no válido.'); }
+  const a = E.actas.find(x => x.id === c.id);
+  if (!a) return m(`No existe el acta ${c.numero || ''} en este registro.`);
+  if (a.estado === 'anulada') return m('Esa acta está anulada.');
+  if (!c.firma || c.firma.dni !== a.dni) return m('La constancia no corresponde al DNI del técnico.');
+  if (c.firma.hash !== await huella(contenidoFirmable(a))) return m('El acta cambió después de enviarla: la firma no corresponde a la versión actual. Envía un enlace nuevo.');
+  a.firma = c.firma; a.estado = c.firma.tipo === 'firma' ? 'firmada' : 'observada';
+  guardar(); dlgImport.close(); abrirDoc(a.id);
+};
+
+// ---------- Registro y unidades ----------
+const ESTADOS = { pendiente: 'Pendiente de firma', firmada: 'Firmada', observada: 'Observada', anulada: 'Anulada' };
+$('#rTec').onchange = $('#rEstado').onchange = () => pintarRegistro();
+function pintarRegistro() {
+  const t = $('#rTec').value, s = $('#rEstado').value;
+  const lista = E.actas.filter(a => (!t || a.tecnico === t) && (!s || a.estado === s)).sort((a, b) => b.fecha.localeCompare(a.fecha) || b.numero.localeCompare(a.numero));
+  $('#tRegistro tbody').innerHTML = lista.map(a => `<tr><td>${esc(a.numero)}</td><td>${fechaCorta(a.fecha)}</td><td>${esc(a.tecnico)}</td><td>${a.unidad ? esc(UNIDAD[a.unidad.tipo].nombre + ' · ' + a.unidad.placa) : '—'}</td><td class="n">${a.secciones.reduce((n, x) => n + x.items.length, 0) + (a.unidad?.implementos.length || 0)}</td><td><span class="chip ${a.estado}">${ESTADOS[a.estado]}</span>${a.firmaAlm ? '' : a.estado !== 'anulada' ? ' <span class="nota">falta almacén</span>' : ''}</td><td><button class="mini" data-abrir="${a.id}">${a.estado === 'pendiente' ? 'Ver / firmar' : 'Ver'}</button></td></tr>`).join('') || '<tr><td colspan="7" class="nota">Sin actas todavía.</td></tr>';
+}
+$('#tRegistro').onclick = e => { if (e.target.dataset.abrir) abrirDoc(e.target.dataset.abrir); };
+function pintarUnidades() {
+  const ult = {};
+  for (const a of E.actas) if (a.unidad && a.estado !== 'anulada') { const p = a.unidad.placa; if (!ult[p] || a.fecha >= ult[p].fecha) ult[p] = a; }
+  const hoy = hoyISO(), venc = d => d ? `<span style="color:${d < hoy ? 'var(--mal)' : 'inherit'}">${fechaCorta(d)}</span>` : '';
+  $('#tUnidades tbody').innerHTML = Object.values(ult).sort((a, b) => a.unidad.placa.localeCompare(b.unidad.placa)).map(a => { const u = a.unidad; return `<tr><td><b>${esc(u.placa)}</b></td><td>${u.tipo === 'van' ? 'Van' : 'Moto'}</td><td>${esc([u.marca, u.modelo].filter(Boolean).join(' '))}</td><td>${esc(a.tecnico)}</td><td>${fechaCorta(a.fecha)}</td><td class="n">${esc(u.km)}</td><td>${venc(u.soat)}</td><td>${venc(u.revTec)}</td><td><button class="mini" data-abrir="${a.id}">${esc(a.numero)}</button> <span class="chip ${a.estado}">${ESTADOS[a.estado]}</span></td></tr>`; }).join('') || '<tr><td colspan="9" class="nota">Ninguna unidad asignada todavía.</td></tr>';
+}
+$('#tUnidades').onclick = e => { if (e.target.dataset.abrir) abrirDoc(e.target.dataset.abrir); };
+
+// ---------- Técnicos y ajustes ----------
+const camposA = { aNombre: 'nombre', aDni: 'dni', aSede: 'sede', aOfi: 'ofi', aVig: 'vig' };
+function pintarConfig() {
+  for (const [id, k] of Object.entries(camposA)) $('#' + id).value = A()[k] || '';
+  $('#aFirmaInfo').textContent = A().firma ? 'Hay una firma de almacén guardada en este navegador (se usa con "Firmar con mi firma guardada").' : '';
+  const campo = (t, k, v, ancho) => `<input data-t="${esc(t)}" data-k="${k}" value="${esc(v || '')}"${ancho ? ` style="max-width:${ancho}px"` : ''}>`;
+  $('#tTecs tbody').innerHTML = tecnicos().map(t => { const f = fichaTec(t); return `<tr><td>${esc(t)}</td><td>${campo(t, 'dni', f.dni, 110)}</td><td>${campo(t, 'cargo', f.cargo)}</td><td>${campo(t, 'celular', f.celular, 130)}</td><td>${campo(t, 'correo', f.correo)}</td><td>${esc(f.zona || '')}</td><td>${f.vehiculo ? esc(textoVeh(f.vehiculo)) : ''}</td><td>${esc(f.situacion || '')}</td></tr>`; }).join('') || '<tr><td colspan="8" class="nota">Sin técnicos: desbloquea con la clave o agrégalos abajo.</td></tr>';
+}
+Object.entries(camposA).forEach(([id, k]) => $('#' + id).onchange = e => { A()[k] = e.target.value.trim(); guardar(); if (k === 'nombre' || k === 'dni' || k === 'sede') { borrador.resp ||= A().nombre; borrador.respDni ||= A().dni; } });
+$('#tTecs').onchange = e => { const { t, k } = e.target.dataset; if (t == null) return; E.tecnicos[t] = { ...(E.tecnicos[t] || {}), [k]: e.target.value.trim() }; guardar(); };
+$('#btnNuevoTec').onclick = () => { const t = $('#nTec').value.trim().toUpperCase().replace(/\s+/g, ' '); if (!t) return; E.tecnicos[t] = E.tecnicos[t] || { situacion: 'Activo' }; guardar(); $('#nTec').value = ''; llenarSelects(); pintarConfig(); };
+
+// ---------- Respaldo / archivos ----------
+function descargar(nombre, texto, tipo = 'application/json') {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([texto], { type: tipo })); a.download = nombre; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+$('#btnRespaldo').onclick = () => descargar(`respaldo_actas_${hoyISO()}.json`, JSON.stringify(E));
+$('#btnCsv').onclick = () => {
+  const filas = E.actas.flatMap(a => [...(a.unidad ? a.unidad.implementos.map(i => [UNIDAD[a.unidad.tipo].titulo, i]) : []), ...a.secciones.flatMap(s => s.items.map(i => [s.titulo, i]))].map(([s, i]) => [a.numero, a.fecha, a.tecnico, a.dni, ESTADOS[a.estado], a.unidad ? a.unidad.placa : '', s, i.codigo, i.descripcion, i.cant, i.serie, i.obs, a.firma?.fecha || '']));
+  descargar('actas_detalle.csv', '﻿' + [['Acta', 'Fecha', 'Tecnico', 'DNI', 'Estado', 'Placa', 'Seccion', 'Codigo', 'Descripcion', 'Cantidad', 'Serie', 'Observaciones', 'Fecha firma'], ...filas].map(f => f.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(';')).join('\r\n'), 'text/csv');
+};
+$('#fRespaldo').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const x = JSON.parse(await f.text()); if (!x.actas) throw 0;
+    const combinar = E.actas.length ? confirm('¿Combinar con los datos actuales? (Aceptar = combinar, Cancelar = reemplazar todo)') : false;
+    if (combinar) {
+      const ids = new Map(E.actas.map(a => [a.id, a]));
+      for (const a of x.actas) { const p = ids.get(a.id); if (!p || (a.firma && !p.firma) || (a.firmaAlm && !p.firmaAlm)) ids.set(a.id, a); }
+      E.actas = [...ids.values()];
+      for (const [t, v] of Object.entries(x.tecnicos || {})) E.tecnicos[t] = { ...v, ...Object.fromEntries(Object.entries(E.tecnicos[t] || {}).filter(([, z]) => z)) };
+      E.vehiculos = { ...(x.vehiculos || {}), ...(E.vehiculos || {}) };
+      for (const [a, v] of Object.entries(x.correlativo || {})) E.correlativo[a] = Math.max(E.correlativo[a] || 0, v);
+    } else E = x;
+    guardar(); llenarSelects(); pintarConfig(); alert('Respaldo cargado: ' + E.actas.length + ' actas.');
+  } catch (err) { alert('El archivo no es un respaldo válido de actas.'); }
+  e.target.value = '';
+};
+
+// ---------- Técnicos cifrados (privado.enc del reporte de descuentos: AES-GCM + PBKDF2-SHA256) ----------
+const bytes = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+let cifrado = null;
+async function descifrar(clave) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(clave), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: bytes(cifrado.salt), iterations: cifrado.it, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes(cifrado.iv) }, key, bytes(cifrado.data))));
+}
+async function desbloquear(clave, recordar) {
+  const x = await descifrar(clave);
+  // Del archivo solo se toman nombre, DNI, cargo y situación; lo editado aquí (celular, correo) se conserva.
+  for (const [t, f] of Object.entries(x.tecnicos || {})) {
+    const p = E.tecnicos[t] || {};
+    E.tecnicos[t] = { ...p, dni: f.dni || p.dni || '', cargo: f.cargo || 'Técnico instalador', situacion: f.situacion || '', zona: f.zona ?? p.zona, vehiculo: f.vehiculo ?? p.vehiculo,
+      celular: p.celular || f.celular || '', correo: p.correo || f.correo || '' };
+  }
+  if (x.almacen) E.almacen = x.almacen;
+  if (x.fecha) E.tecnicosFecha = x.fecha;
+  E.privadoIv = cifrado.iv;
+  guardar();
+  try { if (recordar) localStorage.setItem(CLAVE_RECORDADA, clave); else localStorage.removeItem(CLAVE_RECORDADA); } catch (e) {}
+  if ($('#candado').open) $('#candado').close();
+  $('#lnkDesbloquear').classList.add('oculto');
+  const t = $('#fTec').value; llenarSelects(); $('#fTec').value = t;
+  const alm = E.almacen?.[0];
+  if (alm && !A().nombre && !$('#fResp').value) { borrador.resp = $('#fResp').value = alm.nombre; borrador.respDni = $('#fRespDni').value = alm.dni; }
+  if (vistaActual === 'config') pintarConfig();
+}
+$('#fCandado').onsubmit = async e => {
+  e.preventDefault();
+  $('#cMsg').textContent = 'Abriendo…';
+  try { await desbloquear($('#cClave').value, $('#cRecordar').checked); $('#cClave').value = ''; $('#cMsg').textContent = ''; }
+  catch (err) { $('#cMsg').textContent = err && err.name === 'OperationError' ? 'Clave incorrecta.' : 'No se pudo abrir (' + (err.message || err) + ').'; }
+};
+async function revisarCifrado() {
+  for (const u of FUENTES_TECNICOS) {
+    try { const r = await fetch(u, { cache: 'no-store' }); if (r.ok) { cifrado = await r.json(); break; } } catch (e) {}
+  }
+  if (!cifrado) { if (!tecnicos().length) $('#lnkDesbloquear').classList.add('oculto'); return; }
+  let g = null; try { g = localStorage.getItem(CLAVE_RECORDADA); } catch (e) {}
+  if (g) { try { await desbloquear(g, true); return; } catch (e) { localStorage.removeItem(CLAVE_RECORDADA); } }
+  if (E.privadoIv !== cifrado.iv || !tecnicos().length) pedirClave();
+}
+function pedirClave() {
+  if (!cifrado) return;
+  $('#lnkDesbloquear').classList.remove('oculto');
+  if (!$('#candado').open) $('#candado').showModal();
+  $('#cClave').focus();
+}
+$('#cLuego').onclick = e => { e.preventDefault(); $('#candado').close(); };
+$('#lnkDesbloquear').onclick = e => { e.preventDefault(); pedirClave(); };
+
+// ---------- Inicio ----------
+async function inicio() {
+  const h = location.hash;
+  if (h.startsWith('#firmar=') || h.startsWith('#f=')) {
+    try {
+      const a = JSON.parse(h.startsWith('#f=') ? await descomprimir(h.slice(3)) : deb64(h.slice(8)));
+      modoRemoto = true; a.estado = 'pendiente'; a.firma = null; a.firmaAlm = null;
+      if (a.vig) A().vig = a.vig;
+      document.querySelector('header nav').classList.add('oculto');
+      abrirDoc(a.id, a);
+      return;
+    } catch (e) { alert('El enlace de firma está incompleto o dañado.'); }
+  }
+  llenarSelects(); pintarForm();
+  revisarCifrado();
+}
+inicio();
+</script>
+</body>
+</html>
